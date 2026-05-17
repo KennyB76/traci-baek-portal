@@ -718,7 +718,7 @@
   }
 
   /* ── LANGUAGE ── */
-  let lang = localStorage.getItem('traci-lang') || 'en';
+  var lang = localStorage.getItem('traci-lang') || 'en';
 
   function applyLang() {
     document.querySelectorAll('[data-ko]').forEach(el => {
