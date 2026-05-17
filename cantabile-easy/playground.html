@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<!--
+  Cantabile Easy -- Interactive Playground
+  Traci Baek (Soyeon) 고등학생 자리
+  Newton School / 2026-05-17
+  6 mini interactive: Buffer / Reverb / EQ / Compressor / Mic Volume / Plugin Chain
+  ASCII art + JS visual simulation (no WebAudio)
+  Theme: warm amber (Traci portal 정합)
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cantabile Playground — 소연 직접 해보기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --student:      #f59e0b;
+  --student-soft: #451a03;
+  --student-glow: rgba(245,158,11,0.18);
+  --ink:          #fef3c7;
+  --ink-soft:     #d97706;
+  --paper:        #1a1208;
+  --bg:           #0c0a04;
+  --line:         #2d1f06;
+  --card-bg:      #1f1508;
+  --ok:           #22c55e;
+  --bad:          #ef4444;
+  --serif: 'Noto Serif KR', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'Cascadia Code', 'Consolas', monospace;
+  --radius: 8px;
+}
+[data-theme="light"] {
+  --student:      #d97706;
+  --student-soft: #fef3c7;
+  --student-glow: rgba(217,119,6,0.12);
+  --ink:          #451a03;
+  --ink-soft:     #78350f;
+  --paper:        #fffbeb;
+  --bg:           #fefce8;
+  --line:         #fde68a;
+  --card-bg:      #fffbeb;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  background: var(--bg); color: var(--ink);
+  min-height: 100vh; line-height: 1.7;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--paper);
+  border-bottom: 2px solid var(--line);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem; height: 50px;
+  font-family: var(--mono);
+}
+.nav-left { display: flex; align-items: center; gap: 0.6rem; }
+.nav-back { font-size: 0.75rem; font-weight: 700; color: var(--student); text-decoration: none; }
+.nav-back:hover { opacity: 0.7; }
+.nav-sep { color: var(--ink-soft); font-size: 0.75rem; }
+.nav-title { font-size: 0.72rem; color: var(--ink-soft); font-weight: 600; }
+.nav-actions { display: flex; gap: 0.4rem; }
+.btn-sm {
+  background: var(--student-soft); border: 1px solid var(--line);
+  color: var(--student); border-radius: 5px; padding: 0.2rem 0.55rem;
+  font-size: 0.7rem; font-weight: 700; cursor: pointer;
+  font-family: var(--mono); transition: background 0.15s, border-color 0.15s;
+}
+.btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+
+/* ── MASTHEAD ── */
+.masthead {
+  background: var(--paper);
+  border-bottom: 3px double var(--student);
+  padding: 24px 1.5rem 18px; text-align: center;
+  font-family: var(--mono);
+}
+.ascii-logo {
+  font-size: 0.63rem; line-height: 1.35; color: var(--student);
+  white-space: pre; margin-bottom: 10px; display: inline-block;
+}
+.masthead h1 {
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+  font-weight: 700; margin-bottom: 4px;
+}
+.masthead .sub { font-size: 0.8rem; color: var(--ink-soft); font-style: italic; }
+
+/* ── LAYOUT ── */
+.layout { display: flex; max-width: 1100px; margin: 0 auto; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 190px; flex-shrink: 0;
+  position: sticky; top: 50px;
+  height: calc(100vh - 50px); overflow-y: auto;
+  border-right: 2px solid var(--line); background: var(--paper);
+  padding: 1rem 0.8rem; font-family: var(--mono);
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--student); }
+.sb-title { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--student); margin-bottom: 0.7rem; }
+.sb-nav a { display: block; font-size: 0.68rem; color: var(--ink-soft); text-decoration: none; padding: 3px 0; font-weight: 600; transition: color 0.12s; }
+.sb-nav a:hover { color: var(--student); }
+.sb-nav-label { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--student); margin: 0.7rem 0 0.2rem; }
+.gl-sep { border: none; border-top: 1px solid var(--line); margin: 0.6rem 0; }
+.gl-item { margin-bottom: 0.6rem; }
+.gl-term { font-size: 0.67rem; font-weight: 700; color: var(--student); margin-bottom: 1px; }
+.gl-def { font-size: 0.62rem; color: var(--ink-soft); line-height: 1.4; }
+@media (max-width: 680px) { .sidebar { display: none; } }
+
+/* ── MAIN ── */
+.main { flex: 1; min-width: 0; padding: 1.5rem 1.4rem; }
+
+/* widget section */
+.widget-sec {
+  background: var(--card-bg);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 1.2rem 1.3rem; margin-bottom: 1.5rem;
+  transition: border-color 0.2s;
+}
+.widget-sec:hover { border-color: var(--student); }
+.ws-num {
+  font-family: var(--mono); font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 0.25em; text-transform: uppercase; color: var(--student);
+  margin-bottom: 3px;
+}
+.ws-title {
+  font-family: var(--serif); font-size: 1.1rem; font-weight: 700;
+  margin-bottom: 5px;
+}
+.ws-desc { font-size: 0.81rem; color: var(--ink-soft); margin-bottom: 1rem; line-height: 1.6; }
+
+/* ── SLIDER ── */
+.slider-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.6rem; }
+.slider-label { font-family: var(--mono); font-size: 0.72rem; width: 90px; flex-shrink: 0; color: var(--ink-soft); }
+input[type="range"] {
+  -webkit-appearance: none; flex: 1; height: 6px;
+  background: var(--line); border-radius: 3px; cursor: pointer;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--student); cursor: pointer;
+  transition: transform 0.1s;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.slider-val {
+  font-family: var(--mono); font-size: 0.72rem;
+  font-weight: 700; color: var(--student); width: 56px; text-align: right;
+}
+
+/* ── ASCII DISPLAY ── */
+.asc-display {
+  font-family: var(--mono); font-size: 0.68rem; line-height: 1.4;
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 6px; padding: 0.8rem 1rem;
+  white-space: pre; overflow-x: auto;
+  color: var(--ink-soft); margin-top: 0.7rem;
+}
+.asc-display .hi { color: var(--student); font-weight: 700; }
+.asc-display .ok { color: var(--ok); font-weight: 700; }
+.asc-display .bad { color: var(--bad); font-weight: 700; }
+.asc-display .dim { opacity: 0.4; }
+
+/* ── EQ BARS ── */
+.eq-area { display: flex; gap: 6px; align-items: flex-end; height: 80px; margin: 0.6rem 0; padding: 0 4px; }
+.eq-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+.eq-bar {
+  width: 100%; border-radius: 2px 2px 0 0;
+  background: var(--student); opacity: 0.85;
+  transition: height 0.2s, opacity 0.2s;
+  min-height: 4px;
+}
+.eq-label { font-family: var(--mono); font-size: 0.55rem; color: var(--ink-soft); }
+.eq-sliders { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.eq-slider-col { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; min-width: 40px; }
+.eq-slider-col label { font-family: var(--mono); font-size: 0.58rem; color: var(--ink-soft); }
+input[type="range"].vertical {
+  -webkit-appearance: slider-vertical; width: 20px; height: 70px;
+  writing-mode: bt-lr; cursor: pointer; background: var(--line);
+}
+
+/* ── WAVEFORM ── */
+canvas.waveform {
+  width: 100%; height: 70px;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: var(--paper); display: block; margin-top: 0.7rem;
+}
+
+/* ── MIC BAR ── */
+.mic-meter {
+  height: 28px; background: var(--line); border-radius: 4px;
+  overflow: hidden; position: relative; margin-top: 0.6rem;
+}
+.mic-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--ok) 0%, var(--student) 70%, var(--bad) 100%);
+  transition: width 0.08s;
+}
+.mic-label-row { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.6rem; color: var(--ink-soft); margin-top: 3px; }
+
+/* ── PLUGIN CHAIN (drag) ── */
+.chain-area {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  min-height: 60px; padding: 0.7rem; border: 2px dashed var(--line);
+  border-radius: var(--radius); align-items: center;
+  transition: border-color 0.2s; margin-bottom: 0.6rem;
+}
+.chain-area.drag-over { border-color: var(--student); background: var(--student-glow); }
+.plug-chip {
+  background: var(--student-soft); border: 1px solid var(--student);
+  color: var(--student); border-radius: 5px; padding: 5px 10px;
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 700;
+  cursor: grab; user-select: none; transition: box-shadow 0.15s;
+  display: flex; align-items: center; gap: 5px;
+}
+.plug-chip:hover { box-shadow: 0 2px 10px var(--student-glow); }
+.plug-chip.dragging { opacity: 0.4; cursor: grabbing; }
+.plug-chip .remove-btn {
+  font-size: 0.65rem; cursor: pointer; opacity: 0.6;
+  transition: opacity 0.15s; margin-left: 2px;
+}
+.plug-chip .remove-btn:hover { opacity: 1; color: var(--bad); }
+.plug-palette { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.plug-add {
+  background: var(--paper); border: 1px solid var(--line);
+  color: var(--ink-soft); border-radius: 5px; padding: 5px 10px;
+  font-family: var(--mono); font-size: 0.7rem; cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.plug-add:hover { border-color: var(--student); color: var(--student); }
+.chain-label { font-family: var(--mono); font-size: 0.6rem; color: var(--ink-soft); margin-bottom: 4px; }
+
+/* REVERB DIAL */
+.dial-wrap {
+  display: flex; align-items: center; gap: 1.2rem; margin-bottom: 0.6rem;
+}
+.dial-svg { cursor: pointer; }
+.dial-info { flex: 1; }
+.dial-name { font-family: var(--mono); font-size: 0.8rem; font-weight: 700; color: var(--student); margin-bottom: 2px; }
+.dial-desc { font-size: 0.75rem; color: var(--ink-soft); line-height: 1.5; }
+
+/* footer */
+footer {
+  text-align: center; padding: 1.4rem;
+  font-size: 0.72rem; color: var(--ink-soft);
+  border-top: 1px solid var(--line); font-family: var(--mono);
+}
+footer a { color: var(--student); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a class="nav-back" href="../index.html">&larr; 포탈</a>
+    <span class="nav-sep">/</span>
+    <a class="nav-back" href="index.html">가이드</a>
+    <span class="nav-sep">/</span>
+    <span class="nav-title">Playground</span>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-sm" id="langBtn" onclick="toggleLang()">EN</button>
+    <button class="btn-sm" id="themeBtn" onclick="toggleTheme()">Dark</button>
+    <a class="btn-sm" href="index.html">← 가이드</a>
+  </div>
+</nav>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+<div class="ascii-logo">
++-------------------------------------------+
+|  ♪  PLAYGROUND  --  직접 해보자          ♪  |
+|  슬라이더 / 다이얼 / 드래그  --  시뮬만!    |
+|  (실제 오디오 X  /  시각 시뮬레이션 O)      |
++-------------------------------------------+</div>
+  <h1>
+    <span data-ko>Playground — 직접 해보자</span>
+    <span data-en style="display:none">Playground — Try It Yourself</span>
+  </h1>
+  <div class="sub">
+    <span data-ko>슬라이더 움직이면서 소리 원리 익히기 · 시뮬레이션 only</span>
+    <span data-en style="display:none">Move sliders to learn how audio works · Simulation only</span>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-title">Mini 도구</div>
+    <div class="sb-nav">
+      <div class="sb-nav-label">섹션</div>
+      <a href="#w1" data-ko>1. 버퍼 사이즈</a>
+      <a href="#w1" data-en style="display:none">1. Buffer Size</a>
+      <a href="#w2" data-ko>2. 리버브 다이얼</a>
+      <a href="#w2" data-en style="display:none">2. Reverb Dial</a>
+      <a href="#w3" data-ko>3. EQ 밴드</a>
+      <a href="#w3" data-en style="display:none">3. EQ Bands</a>
+      <a href="#w4" data-ko>4. 컴프레서</a>
+      <a href="#w4" data-en style="display:none">4. Compressor</a>
+      <a href="#w5" data-ko>5. 마이크 볼륨</a>
+      <a href="#w5" data-en style="display:none">5. Mic Volume</a>
+      <a href="#w6" data-ko>6. 플러그인 체인</a>
+      <a href="#w6" data-en style="display:none">6. Plugin Chain</a>
+    </div>
+    <hr class="gl-sep">
+    <div class="sb-title">용어</div>
+    <div class="gl-item">
+      <div class="gl-term">Buffer Size</div>
+      <div class="gl-def">작을수록 지연 줄지만 CPU 부하 증가.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Reverb</div>
+      <div class="gl-def">공간 잔향. Dry=원음 / Wet=이펙트.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">EQ</div>
+      <div class="gl-def">주파수 대역별 음량 조절.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Compressor</div>
+      <div class="gl-def">Ratio 높을수록 음량 압축 강함.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Plugin Chain</div>
+      <div class="gl-def">플러그인 순서가 소리에 영향 미침.</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- WIDGET 1: Buffer Size -->
+    <div class="widget-sec" id="w1">
+      <div class="ws-num">Widget 01</div>
+      <h2 class="ws-title">
+        <span data-ko>버퍼 사이즈 — 지연 시간 시뮬</span>
+        <span data-en style="display:none">Buffer Size — Latency Simulation</span>
+      </h2>
+      <p class="ws-desc">
+        <span data-ko>버퍼 사이즈를 줄이면 지연이 줄어. 하지만 너무 줄이면 소리가 끊겨!</span>
+        <span data-en style="display:none">Smaller buffer size = less latency. But too small = audio glitches!</span>
+      </p>
+      <div class="slider-row">
+        <span class="slider-label">Buffer Size</span>
+        <input type="range" id="bufSlider" min="0" max="4" step="1" value="2" oninput="updateBuffer(this.value)">
+        <span class="slider-val" id="bufVal">256</span>
+      </div>
+      <div class="asc-display" id="bufDisplay"></div>
+    </div>
+
+    <!-- WIDGET 2: Reverb Dial -->
+    <div class="widget-sec" id="w2">
+      <div class="ws-num">Widget 02</div>
+      <h2 class="ws-title">
+        <span data-ko>리버브 다이얼 — Soft / Large</span>
+        <span data-en style="display:none">Reverb Dial — Soft / Large</span>
+      </h2>
+      <p class="ws-desc">
+        <span data-ko>다이얼을 돌려서 공간감 변화를 보자. Dry = 원음, Wet = 이펙트 양.</span>
+        <span data-en style="display:none">Turn the dial to see space change. Dry = original, Wet = effect amount.</span>
+      </p>
+      <div class="dial-wrap">
+        <svg class="dial-svg" width="80" height="80" viewBox="0 0 80 80" id="dialSvg" onmousedown="startDial(event)" ontouchstart="startDial(event)">
+          <circle cx="40" cy="40" r="34" fill="var(--card-bg)" stroke="var(--line)" stroke-width="2"/>
+          <circle cx="40" cy="40" r="28" fill="none" stroke="var(--student)" stroke-width="4" stroke-dasharray="140 44" stroke-dashoffset="35" stroke-linecap="round"/>
+          <line id="dialNeedle" x1="40" y1="40" x2="40" y2="14" stroke="var(--student)" stroke-width="3" stroke-linecap="round"
+                transform="rotate(0,40,40)"/>
+          <circle cx="40" cy="40" r="5" fill="var(--student)"/>
+        </svg>
+        <div class="dial-info">
+          <div class="dial-name" id="reverbName">Room</div>
+          <div class="dial-desc" id="reverbDesc"></div>
+        </div>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label" data-ko>Wet 양</span>
+        <span class="slider-label" data-en style="display:none">Wet Amount</span>
+        <input type="range" id="reverbSlider" min="0" max="100" value="30" oninput="updateReverb(this.value)">
+        <span class="slider-val" id="reverbVal">30%</span>
+      </div>
+      <div class="asc-display" id="reverbDisplay"></div>
+    </div>
+
+    <!-- WIDGET 3: EQ Bands -->
+    <div class="widget-sec" id="w3">
+      <div class="ws-num">Widget 03</div>
+      <h2 class="ws-title">
+        <span data-ko>EQ 밴드 — 주파수 시각화</span>
+        <span data-en style="display:none">EQ Bands — Frequency Visualization</span>
+      </h2>
+      <p class="ws-desc">
+        <span data-ko>각 주파수 대역을 올리거나 내려봐. 목소리에서 뭘 잘라낼지 느껴보자.</span>
+        <span data-en style="display:none">Boost or cut each frequency band. Feel what to cut from your voice.</span>
+      </p>
+      <div class="eq-area" id="eqBars"></div>
+      <div class="eq-sliders" id="eqSliders"></div>
+      <div class="asc-display" id="eqDisplay"></div>
+    </div>
+
+    <!-- WIDGET 4: Compressor -->
+    <div class="widget-sec" id="w4">
+      <div class="ws-num">Widget 04</div>
+      <h2 class="ws-title">
+        <span data-ko>컴프레서 — Ratio 변경</span>
+        <span data-en style="display:none">Compressor — Change Ratio</span>
+      </h2>
+      <p class="ws-desc">
+        <span data-ko>Ratio 가 높을수록 큰 소리를 더 많이 줄여. 일정한 볼륨 유지에 필요해.</span>
+        <span data-en style="display:none">Higher ratio = more compression of loud sounds. Keeps volume steady.</span>
+      </p>
+      <div class="slider-row">
+        <span class="slider-label">Threshold</span>
+        <input type="range" id="threshSlider" min="-40" max="0" value="-12" oninput="updateComp()">
+        <span class="slider-val" id="threshVal">-12 dB</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Ratio</span>
+        <input type="range" id="ratioSlider" min="1" max="20" value="4" oninput="updateComp()">
+        <span class="slider-val" id="ratioVal">4:1</span>
+      </div>
+      <canvas class="waveform" id="compCanvas" width="600" height="70"></canvas>
+      <div class="asc-display" id="compDisplay"></div>
+    </div>
+
+    <!-- WIDGET 5: Mic Volume Meter -->
+    <div class="widget-sec" id="w5">
+      <div class="ws-num">Widget 05</div>
+      <h2 class="ws-title">
+        <span data-ko>마이크 볼륨 — 입력 시뮬</span>
+        <span data-en style="display:none">Mic Volume — Input Simulation</span>
+      </h2>
+      <p class="ws-desc">
+        <span data-ko>슬라이더로 마이크 입력 게인을 조절해봐. 클리핑(빨간 영역)이 생기면 소리가 깨져!</span>
+        <span data-en style="display:none">Adjust mic input gain. If clipping (red zone) appears, audio will distort!</span>
+      </p>
+      <div class="slider-row">
+        <span class="slider-label" data-ko>게인 (Gain)</span>
+        <span class="slider-label" data-en style="display:none">Gain</span>
+        <input type="range" id="gainSlider" min="0" max="100" value="50" oninput="updateMic(this.value)">
+        <span class="slider-val" id="gainVal">50</span>
+      </div>
+      <div class="mic-meter">
+        <div class="mic-fill" id="micFill" style="width:50%"></div>
+      </div>
+      <div class="mic-label-row">
+        <span data-ko>조용함</span><span data-en style="display:none">Quiet</span>
+        <span data-ko>적정</span><span data-en style="display:none">Good</span>
+        <span data-ko style="color:var(--bad)">클리핑!</span><span data-en style="display:none" style="color:var(--bad)">Clipping!</span>
+      </div>
+      <div class="asc-display" id="micDisplay"></div>
+    </div>
+
+    <!-- WIDGET 6: Plugin Chain -->
+    <div class="widget-sec" id="w6">
+      <div class="ws-num">Widget 06</div>
+      <h2 class="ws-title">
+        <span data-ko>플러그인 체인 — 드래그 & 드롭</span>
+        <span data-en style="display:none">Plugin Chain — Drag & Drop</span>
+      </h2>
+      <p class="ws-desc">
+        <span data-ko>아래 팔레트에서 플러그인을 골라서 체인에 추가해봐. 순서를 바꾸면 소리가 달라져!</span>
+        <span data-en style="display:none">Pick plugins from the palette and add them to the chain. Order matters!</span>
+      </p>
+      <div class="chain-label" data-ko>팔레트 (클릭해서 추가):</div>
+      <div class="chain-label" data-en style="display:none">Palette (click to add):</div>
+      <div class="plug-palette" id="plugPalette">
+        <button class="plug-add" onclick="addPlugin('Mic Input','&#127908;')">&#127908; Mic Input</button>
+        <button class="plug-add" onclick="addPlugin('Gate','&#9632;')">&#9632; Gate</button>
+        <button class="plug-add" onclick="addPlugin('EQ','&#127924;')">&#127924; EQ</button>
+        <button class="plug-add" onclick="addPlugin('Compressor','&#128161;')">&#128161; Compressor</button>
+        <button class="plug-add" onclick="addPlugin('Reverb','&#127744;')">&#127744; Reverb</button>
+        <button class="plug-add" onclick="addPlugin('Limiter','&#9940;')">&#9940; Limiter</button>
+        <button class="plug-add" onclick="addPlugin('Output','&#128266;')">&#128266; Output</button>
+      </div>
+      <div class="chain-label" data-ko>현재 체인 (드래그로 순서 변경, X 로 제거):</div>
+      <div class="chain-label" data-en style="display:none">Current chain (drag to reorder, X to remove):</div>
+      <div class="chain-area" id="chainArea"
+           ondragover="event.preventDefault(); this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="onChainDrop(event)">
+        <span style="font-family:var(--mono);font-size:0.68rem;color:var(--ink-soft)" data-ko>← 여기에 플러그인 추가</span>
+        <span style="font-family:var(--mono);font-size:0.68rem;color:var(--ink-soft)" data-en style="display:none">← Add plugins here</span>
+      </div>
+      <div class="asc-display" id="chainDisplay"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <span data-ko>Newton School &middot; 소연 Playground &middot; 2026-05-17</span>
+    <span data-en style="display:none">Newton School &middot; Soyeon Playground &middot; 2026-05-17</span>
+  </div>
+  <div style="margin-top:4px;">
+    <a href="index.html" data-ko>← 설치 가이드로</a>
+    <a href="index.html" data-en style="display:none">← Back to install guide</a>
+    &nbsp;|&nbsp;
+    <a href="../cantabile/index.html" data-ko>고급 가이드 (Kenny 자리)</a>
+    <a href="../cantabile/index.html" data-en style="display:none">Advanced Guide (Kenny)</a>
+    &nbsp;|&nbsp;
+    <a href="../index.html" data-ko>포탈로 돌아가기</a>
+    <a href="../index.html" data-en style="display:none">Back to portal</a>
+  </div>
+</footer>
+
+<script>
+// ── THEME + LANG ──
+const html = document.documentElement;
+let theme = localStorage.getItem('traci-theme') || 'light';
+let lang = localStorage.getItem('traci-lang') || 'ko';
+
+function applyTheme(t) {
+  theme = t;
+  html.dataset.theme = t;
+  document.getElementById('themeBtn').textContent = t === 'light' ? 'Dark' : 'Light';
+  localStorage.setItem('traci-theme', t);
+  updateAllDisplays();
+}
+function toggleTheme() { applyTheme(theme === 'light' ? 'dark' : 'light'); }
+
+function applyLang(l) {
+  lang = l;
+  document.getElementById('langBtn').textContent = l === 'ko' ? 'EN' : 'KO';
+  document.querySelectorAll('[data-ko]').forEach(el => { el.style.display = l === 'ko' ? '' : 'none'; });
+  document.querySelectorAll('[data-en]').forEach(el => { el.style.display = l === 'en' ? '' : 'none'; });
+  localStorage.setItem('traci-lang', l);
+  updateAllDisplays();
+}
+function toggleLang() { applyLang(lang === 'ko' ? 'en' : 'ko'); }
+
+applyTheme(theme);
+applyLang(lang);
+
+// ── W1: BUFFER SIZE ──
+const BUFS = [64, 128, 256, 512, 1024];
+const BUF_MS = [1.5, 3, 6, 12, 24];
+function updateBuffer(v) {
+  const idx = parseInt(v);
+  const b = BUFS[idx], ms = BUF_MS[idx];
+  document.getElementById('bufVal').textContent = b;
+  const bar = Math.round(ms / 25 * 30);
+  const filled = '#'.repeat(bar);
+  const empty = '.'.repeat(30 - bar);
+  const status = ms <= 3 ? '<span class="ok">빠름 / Fast</span>' : ms <= 8 ? '<span class="hi">보통 / OK</span>' : '<span class="bad">느림 / Slow</span>';
+  const clipRisk = ms <= 3 ? '<span class="bad">끊김 위험! / Glitch risk!</span>' : ms >= 16 ? '<span class="ok">안전 / Safe</span>' : '<span class="hi">보통 / Medium</span>';
+  document.getElementById('bufDisplay').innerHTML =
+`Buffer: <span class="hi">${b}</span>  |  지연(Latency): <span class="hi">${ms}ms</span>  |  상태: ${status}
+
+지연 막대 (Latency bar):
+[<span class="ok">${filled}</span>${empty}] ${ms}ms
+
+CPU 부하 (CPU Load):
+${ idx === 0 ? '[<span class="bad">##########</span>....................] 높음 / HIGH' :
+   idx === 1 ? '[<span class="bad">#######</span>.......................] 높음 / HIGH' :
+   idx === 2 ? '[<span class="hi">####</span>..........................] 보통 / MED' :
+   idx === 3 ? '[<span class="ok">##</span>............................] 낮음 / LOW' :
+               '[<span class="ok">#</span>.............................] 매우 낮음 / VERY LOW' }
+
+끊김 위험 (Glitch risk): ${clipRisk}`;
+}
+updateBuffer(2);
+
+// ── W2: REVERB ──
+const REVERB_PRESETS = [
+  { name:'Dry (원음)', desc: lang => lang==='ko' ? '이펙트 없음. 가장 자연스러운 목소리.' : 'No effect. Your natural voice.', min: 0, max: 10 },
+  { name:'Room (작은 방)', desc: lang => lang==='ko' ? '살짝 공간감. 녹음 연습에 좋아.' : 'Slight space. Good for recording practice.', min: 11, max: 35 },
+  { name:'Hall (홀)', desc: lang => lang==='ko' ? '큰 홀 느낌. 콘서트 느낌!' : 'Big hall feel. Concert vibe!', min: 36, max: 65 },
+  { name:'Cathedral (대성당)', desc: lang => lang==='ko' ? '엄청 긴 잔향. 드라마틱해.' : 'Very long reverb. Dramatic effect.', min: 66, max: 85 },
+  { name:'Infinite (무한)', desc: lang => lang==='ko' ? '잔향이 계속 이어져. 신비로운 느낌.' : 'Reverb never stops. Ethereal feel.', min: 86, max: 100 },
+];
+let dialAngle = -135;
+let dialDragging = false;
+let dialStartY = 0;
+let dialStartAngle = -135;
+
+function startDial(e) {
+  dialDragging = true;
+  dialStartY = e.touches ? e.touches[0].clientY : e.clientY;
+  dialStartAngle = dialAngle;
+  document.addEventListener('mousemove', moveDial);
+  document.addEventListener('touchmove', moveDial);
+  document.addEventListener('mouseup', stopDial);
+  document.addEventListener('touchend', stopDial);
+}
+function moveDial(e) {
+  if (!dialDragging) return;
+  const y = e.touches ? e.touches[0].clientY : e.clientY;
+  const delta = (dialStartY - y) * 1.5;
+  dialAngle = Math.max(-135, Math.min(135, dialStartAngle + delta));
+  document.getElementById('dialNeedle').setAttribute('transform', `rotate(${dialAngle},40,40)`);
+  const pct = Math.round((dialAngle + 135) / 270 * 100);
+  document.getElementById('reverbSlider').value = pct;
+  updateReverb(pct);
+}
+function stopDial() {
+  dialDragging = false;
+  document.removeEventListener('mousemove', moveDial);
+  document.removeEventListener('touchmove', moveDial);
+  document.removeEventListener('mouseup', stopDial);
+  document.removeEventListener('touchend', stopDial);
+}
+
+function updateReverb(v) {
+  const pct = parseInt(v);
+  document.getElementById('reverbVal').textContent = pct + '%';
+  // sync dial
+  const angle = -135 + (pct / 100) * 270;
+  dialAngle = angle;
+  document.getElementById('dialNeedle').setAttribute('transform', `rotate(${angle},40,40)`);
+  // preset
+  const preset = REVERB_PRESETS.find(p => pct >= p.min && pct <= p.max) || REVERB_PRESETS[0];
+  document.getElementById('reverbName').textContent = preset.name;
+  document.getElementById('reverbDesc').textContent = preset.desc(lang);
+  // display
+  const dry = 100 - pct, wet = pct;
+  const dryBar = '#'.repeat(Math.round(dry / 100 * 20));
+  const wetBar = '~'.repeat(Math.round(wet / 100 * 20));
+  document.getElementById('reverbDisplay').innerHTML =
+`프리셋 (Preset): <span class="hi">${preset.name}</span>
+
+DRY  [<span class="ok">${dryBar.padEnd(20,'.')}</span>] ${dry}%
+WET  [<span class="hi">${wetBar.padEnd(20,'.')}</span>] ${wet}%
+
+소리 성격:
+${ pct < 10  ? '> 원래 목소리 그대로. 방송 인터뷰 스타일.' :
+   pct < 35  ? '> 조금 따뜻함. 연습 + 방송 모두 OK.' :
+   pct < 65  ? '> 콘서트 느낌. 발라드에 좋아.' :
+   pct < 85  ? '> 대성당. 드라마틱. 주의해서 써봐.' :
+               '> 완전 이펙트. 특수효과 용도. 🌊' }`;
+}
+updateReverb(30);
+
+// ── W3: EQ ──
+const EQ_BANDS = [
+  { freq: '80Hz', label: '저음', color: '#a855f7' },
+  { freq: '200Hz', label: '웜', color: '#3b82f6' },
+  { freq: '500Hz', label: '중음', color: '#22c55e' },
+  { freq: '1kHz', label: '목소리', color: '#f59e0b' },
+  { freq: '3kHz', label: '선명', color: '#ef4444' },
+  { freq: '8kHz', label: '공기', color: '#ec4899' },
+];
+const eqVals = [0, 0, 0, 0, 0, 0];
+
+function buildEQ() {
+  const barsEl = document.getElementById('eqBars');
+  const slidersEl = document.getElementById('eqSliders');
+  barsEl.innerHTML = '';
+  slidersEl.innerHTML = '';
+  EQ_BANDS.forEach((b, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'eq-bar-wrap';
+    const bar = document.createElement('div');
+    bar.className = 'eq-bar';
+    bar.id = 'eqbar' + i;
+    bar.style.height = '40px';
+    bar.style.background = b.color;
+    const lbl = document.createElement('div');
+    lbl.className = 'eq-label';
+    lbl.textContent = b.freq;
+    wrap.appendChild(bar); wrap.appendChild(lbl);
+    barsEl.appendChild(wrap);
+
+    const col = document.createElement('div');
+    col.className = 'eq-slider-col';
+    const sl = document.createElement('input');
+    sl.type = 'range'; sl.min = -12; sl.max = 12; sl.value = 0; sl.step = 1;
+    sl.style.cssText = 'width:100%;height:5px';
+    sl.oninput = () => { eqVals[i] = parseInt(sl.value); updateEQ(); };
+    const lbl2 = document.createElement('label');
+    lbl2.textContent = b.label;
+    col.appendChild(sl); col.appendChild(lbl2);
+    slidersEl.appendChild(col);
+  });
+  updateEQ();
+}
+
+function updateEQ() {
+  EQ_BANDS.forEach((b, i) => {
+    const v = eqVals[i];
+    const h = 40 + v * 2;
+    document.getElementById('eqbar' + i).style.height = Math.max(4, h) + 'px';
+  });
+  const lines = EQ_BANDS.map((b, i) => {
+    const v = eqVals[i];
+    const bar = v >= 0 ? '+'.repeat(v) : '-'.repeat(-v);
+    const status = v > 6 ? '(강조)' : v < -6 ? '(컷)' : '     ';
+    return `  ${b.freq.padEnd(5)} ${b.label.padEnd(4)}: ${(v >= 0 ? '+' : '') + v + 'dB'} [${bar.padStart(12).padEnd(24)}] ${status}`;
+  }).join('\n');
+  document.getElementById('eqDisplay').innerHTML =
+`EQ 설정 (현재):\n${lines}\n\n<span class="hi">TIP:</span> 80-200Hz 줄이면 웅웅거림 제거. 3kHz 올리면 목소리 선명해짐.`;
+}
+buildEQ();
+
+// ── W4: COMPRESSOR ──
+function updateComp() {
+  const thresh = parseInt(document.getElementById('threshSlider').value);
+  const ratio = parseInt(document.getElementById('ratioSlider').value);
+  document.getElementById('threshVal').textContent = thresh + ' dB';
+  document.getElementById('ratioVal').textContent = ratio + ':1';
+  drawComp(thresh, ratio);
+  const strength = ratio < 3 ? '약함 / Light' : ratio < 8 ? '보통 / Medium' : '강함 / Heavy';
+  document.getElementById('compDisplay').innerHTML =
+`Threshold: <span class="hi">${thresh} dB</span>  |  Ratio: <span class="hi">${ratio}:1</span>
+
+동작:
+  Threshold 이하 소리   → <span class="ok">그대로 통과</span>
+  Threshold 이상 큰 소리 → <span class="bad">${ratio}:1 비율로 압축</span>
+  (예: 6dB 큰 소리 → ${Math.round(6/ratio*10)/10}dB 로 줄임)
+
+압축 강도: <span class="hi">${strength}</span>
+${ ratio >= 10 ? '<span class="bad">Limiter 영역. 매우 강한 압축!</span>' : ratio >= 6 ? '<span class="hi">방송 목소리에 적합.</span>' : '<span class="ok">자연스러운 압축.</span>' }`;
+}
+function drawComp(thresh, ratio) {
+  const canvas = document.getElementById('compCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const isDark = document.documentElement.dataset.theme !== 'light';
+  const bg = isDark ? '#1f1508' : '#fffbeb';
+  const lineC = isDark ? '#2d1f06' : '#fde68a';
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  // grid
+  ctx.strokeStyle = lineC; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += W/6) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  // waveform (before)
+  ctx.beginPath(); ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 1.5;
+  for (let x = 0; x < W; x++) {
+    const t = x / W * Math.PI * 6;
+    const amp = 0.7 + Math.sin(t * 0.3) * 0.3;
+    const y = H/2 - Math.sin(t) * amp * (H * 0.42);
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // compressed waveform
+  const threshAmp = 1 - (Math.abs(thresh) / 40);
+  ctx.beginPath(); ctx.strokeStyle = '#d97706'; ctx.lineWidth = 2;
+  for (let x = 0; x < W; x++) {
+    const t = x / W * Math.PI * 6;
+    const rawAmp = (0.7 + Math.sin(t * 0.3) * 0.3) * Math.abs(Math.sin(t));
+    let compAmp;
+    if (rawAmp > threshAmp) {
+      const over = rawAmp - threshAmp;
+      compAmp = threshAmp + over / ratio;
+    } else {
+      compAmp = rawAmp;
+    }
+    const y = H/2 - (Math.sin(t) >= 0 ? 1 : -1) * compAmp * (H * 0.42);
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // legend
+  ctx.font = '11px monospace';
+  ctx.fillStyle = '#6b7280'; ctx.fillText('원음 / Original', 8, 14);
+  ctx.fillStyle = '#d97706'; ctx.fillText('압축 후 / Compressed', 8, 28);
+}
+updateComp();
+
+// ── W5: MIC ──
+function updateMic(v) {
+  const pct = parseInt(v);
+  document.getElementById('gainVal').textContent = pct;
+  document.getElementById('micFill').style.width = Math.min(pct, 100) + '%';
+  const status = pct < 30 ? { txt:'너무 조용해 / Too quiet', cls:'ok' }
+               : pct < 75 ? { txt:'적정 / Good level', cls:'ok' }
+               : pct < 90 ? { txt:'좀 큰 편 / A bit loud', cls:'hi' }
+               : { txt:'클리핑! 줄여줘 / CLIPPING! Reduce!', cls:'bad' };
+  const bar = '|'.repeat(Math.round(pct / 100 * 30)).padEnd(30, '.');
+  document.getElementById('micDisplay').innerHTML =
+`게인 (Gain): <span class="hi">${pct}</span>
+
+볼륨 미터:
+  [<span class="${status.cls}">${bar}</span>] ${pct}%
+  상태: <span class="${status.cls}">${status.txt}</span>
+
+<span class="hi">TIP:</span> 70~85% 구간이 이상적. 클리핑 없이 충분히 큰 소리.`;
+}
+updateMic(50);
+
+// ── W6: PLUGIN CHAIN ──
+let chainPlugins = [];
+let dragSrc = null;
+
+function addPlugin(name, icon) {
+  chainPlugins.push({ name, icon, id: Date.now() + Math.random() });
+  renderChain();
+}
+
+function renderChain() {
+  const area = document.getElementById('chainArea');
+  area.innerHTML = '';
+  if (chainPlugins.length === 0) {
+    area.innerHTML = '<span style="font-family:var(--mono);font-size:0.68rem;color:var(--ink-soft)" data-ko>← 여기에 플러그인 추가</span>';
+    applyLang(lang);
+  } else {
+    chainPlugins.forEach((p, i) => {
+      if (i > 0) {
+        const arr = document.createElement('span');
+        arr.style.cssText = 'font-family:var(--mono);color:var(--student);font-weight:700;padding:0 2px';
+        arr.textContent = '→';
+        area.appendChild(arr);
+      }
+      const chip = document.createElement('div');
+      chip.className = 'plug-chip';
+      chip.draggable = true;
+      chip.dataset.idx = i;
+      chip.innerHTML = `${p.icon} ${p.name} <span class="remove-btn" onclick="removePlugin(${i})">x</span>`;
+      chip.addEventListener('dragstart', e => {
+        dragSrc = i;
+        chip.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      chip.addEventListener('dragend', () => { chip.classList.remove('dragging'); });
+      chip.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+      chip.addEventListener('drop', e => {
+        e.stopPropagation();
+        if (dragSrc !== null && dragSrc !== i) {
+          const moved = chainPlugins.splice(dragSrc, 1)[0];
+          chainPlugins.splice(i, 0, moved);
+          dragSrc = null;
+          renderChain();
+          updateChainDisplay();
+        }
+      });
+      area.appendChild(chip);
+    });
+  }
+  area.ondragover = e => { e.preventDefault(); area.classList.add('drag-over'); };
+  area.ondragleave = () => area.classList.remove('drag-over');
+  area.ondrop = e => { e.preventDefault(); area.classList.remove('drag-over'); };
+  updateChainDisplay();
+}
+
+function removePlugin(idx) {
+  chainPlugins.splice(idx, 1);
+  renderChain();
+}
+
+function onChainDrop(e) {
+  e.preventDefault();
+  document.getElementById('chainArea').classList.remove('drag-over');
+}
+
+function updateChainDisplay() {
+  if (chainPlugins.length === 0) {
+    document.getElementById('chainDisplay').innerHTML = '<span class="dim">체인 비어있음. 팔레트에서 추가해봐! / Chain empty. Add from palette!</span>';
+    return;
+  }
+  const chain = chainPlugins.map((p, i) => `  ${i+1}. ${p.icon} ${p.name}`).join('\n');
+  const tips = [];
+  const names = chainPlugins.map(p => p.name);
+  if (names.includes('Reverb') && names.indexOf('Reverb') < names.indexOf('Compressor') && names.includes('Compressor'))
+    tips.push('<span class="bad">주의:</span> Reverb 는 보통 Compressor 다음에 두는 게 좋아. 순서 바꿔봐!');
+  if (!names.includes('Mic Input'))
+    tips.push('<span class="hi">TIP:</span> 체인 맨 앞에 Mic Input 을 추가해봐!');
+  if (!names.includes('Output') && chainPlugins.length > 0)
+    tips.push('<span class="hi">TIP:</span> 체인 맨 뒤에 Output 을 추가해야 소리가 나와!');
+  if (names.includes('EQ') && names.includes('Compressor') && names.indexOf('EQ') > names.indexOf('Compressor'))
+    tips.push('<span class="ok">좋아:</span> Compressor → EQ 순서. 이 방식도 많이 써!');
+
+  document.getElementById('chainDisplay').innerHTML =
+`현재 신호 흐름 (Signal Flow):
+마이크
+${chain.split('\n').map(l => '  ' + l).join('\n  ↓\n')}
+  ↓
+스피커 / OBS
+
+${tips.length ? tips.join('\n') : '<span class="ok">체인 좋아 보여!</span>'}`;
+}
+
+renderChain();
+
+// ── ALL DISPLAYS ──
+function updateAllDisplays() {
+  updateBuffer(document.getElementById('bufSlider').value);
+  updateReverb(document.getElementById('reverbSlider').value);
+  updateEQ();
+  updateComp();
+  updateMic(document.getElementById('gainSlider').value);
+  updateChainDisplay();
+}
+</script>
+</body>
+</html>

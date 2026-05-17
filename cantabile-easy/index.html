@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<!--
+  Cantabile Easy -- Install + 사용법
+  Traci Baek (Soyeon) 고등학생 자리
+  Newton School / 2026-05-17
+  Theme: warm amber (Traci portal 정합)
+  Tone: 친근 / 청소년 / 한국어 default + en toggle
+  ASCII art boxes / step-by-step / inline glossary sidebar
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cantabile 쉽게 시작 — 소연 가이드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --student:      #f59e0b;
+  --student-soft: #451a03;
+  --student-deep: #fde68a;
+  --student-glow: rgba(245,158,11,0.18);
+  --ink:          #fef3c7;
+  --ink-soft:     #d97706;
+  --paper:        #1a1208;
+  --bg:           #0c0a04;
+  --line:         #2d1f06;
+  --card-bg:      #1f1508;
+  --ok:           #22c55e;
+  --warn:         #f59e0b;
+  --serif: 'Noto Serif KR', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'Cascadia Code', 'Consolas', monospace;
+  --radius: 8px;
+}
+[data-theme="light"] {
+  --student:      #d97706;
+  --student-soft: #fef3c7;
+  --student-deep: #92400e;
+  --student-glow: rgba(217,119,6,0.12);
+  --ink:          #451a03;
+  --ink-soft:     #78350f;
+  --paper:        #fffbeb;
+  --bg:           #fefce8;
+  --line:         #fde68a;
+  --card-bg:      #fffbeb;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.7;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--paper);
+  border-bottom: 2px solid var(--line);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem; height: 50px;
+  font-family: var(--mono);
+}
+.nav-left { display: flex; align-items: center; gap: 0.6rem; }
+.nav-back {
+  font-size: 0.75rem; font-weight: 700;
+  color: var(--student); text-decoration: none;
+  letter-spacing: 0.04em;
+}
+.nav-back:hover { opacity: 0.7; }
+.nav-sep { color: var(--ink-soft); font-size: 0.75rem; }
+.nav-title {
+  font-size: 0.72rem; color: var(--ink-soft);
+  font-weight: 600;
+}
+.nav-actions { display: flex; gap: 0.4rem; }
+.btn-sm {
+  background: var(--student-soft);
+  border: 1px solid var(--line);
+  color: var(--student);
+  border-radius: 5px; padding: 0.2rem 0.55rem;
+  font-size: 0.7rem; font-weight: 700;
+  cursor: pointer; font-family: var(--mono);
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+
+/* ── MASTHEAD ── */
+.masthead {
+  background: var(--paper);
+  border-bottom: 3px double var(--student);
+  padding: 28px 1.5rem 20px;
+  text-align: center;
+  font-family: var(--mono);
+}
+.ascii-logo {
+  font-size: 0.65rem; line-height: 1.35;
+  color: var(--student); white-space: pre;
+  margin-bottom: 12px;
+  display: inline-block;
+}
+.masthead h1 {
+  font-family: var(--serif);
+  font-size: clamp(1.45rem, 4vw, 2rem);
+  font-weight: 700; margin-bottom: 5px;
+}
+.masthead .sub {
+  font-size: 0.82rem; color: var(--ink-soft);
+  font-style: italic;
+}
+.masthead .chain {
+  display: flex; flex-wrap: wrap;
+  justify-content: center; gap: 0;
+  margin-top: 14px; font-size: 0.68rem;
+  font-family: var(--mono);
+}
+.chain-step {
+  background: var(--student-soft);
+  border: 1px solid var(--student);
+  color: var(--student); padding: 3px 10px;
+  font-weight: 700; white-space: nowrap;
+}
+.chain-arr { color: var(--ink-soft); padding: 0 4px; line-height: 2.2; }
+
+/* ── LAYOUT ── */
+.layout {
+  display: flex;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 200px; flex-shrink: 0;
+  position: sticky; top: 50px;
+  height: calc(100vh - 50px);
+  overflow-y: auto;
+  border-right: 2px solid var(--line);
+  background: var(--paper);
+  padding: 1rem 0.85rem;
+  font-family: var(--mono);
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--student); }
+
+.sb-title {
+  font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--student); margin-bottom: 0.7rem;
+}
+/* search */
+.sb-search {
+  width: 100%; padding: 4px 6px;
+  font-size: 0.68rem; font-family: var(--mono);
+  background: var(--card-bg); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 4px;
+  margin-bottom: 0.8rem;
+  outline: none;
+}
+.sb-search:focus { border-color: var(--student); }
+.sb-search::placeholder { color: var(--ink-soft); }
+
+/* section nav links */
+.sb-nav { margin-bottom: 1rem; }
+.sb-nav a {
+  display: block; font-size: 0.68rem;
+  color: var(--ink-soft); text-decoration: none;
+  padding: 2px 0; font-weight: 600;
+  transition: color 0.12s;
+}
+.sb-nav a:hover { color: var(--student); }
+.sb-nav-label {
+  font-size: 0.58rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--student);
+  margin: 0.6rem 0 0.2rem;
+}
+
+/* glossary */
+.gl-sep { border: none; border-top: 1px solid var(--line); margin: 0.6rem 0; }
+.gl-item { margin-bottom: 0.7rem; }
+.gl-term {
+  font-size: 0.68rem; font-weight: 700;
+  color: var(--student); margin-bottom: 1px;
+}
+.gl-def {
+  font-size: 0.63rem; color: var(--ink-soft);
+  line-height: 1.4;
+}
+.gl-item.hidden { display: none; }
+
+@media (max-width: 680px) { .sidebar { display: none; } }
+
+/* ── MAIN ── */
+.main {
+  flex: 1; min-width: 0;
+  padding: 1.5rem 1.5rem;
+}
+
+/* section */
+.sec {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px dashed var(--line);
+}
+.sec:last-child { border-bottom: none; }
+
+.sec-num {
+  font-family: var(--mono); font-size: 0.62rem;
+  font-weight: 700; letter-spacing: 0.25em;
+  color: var(--student); text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.sec-title {
+  font-family: var(--serif);
+  font-size: 1.25rem; font-weight: 700;
+  margin-bottom: 6px; line-height: 1.2;
+}
+.sec-desc {
+  font-size: 0.84rem; color: var(--ink-soft);
+  margin-bottom: 1rem; line-height: 1.7;
+}
+
+/* ── ASCII BOX ── */
+.asc-box {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  white-space: pre;
+}
+.asc-box .hi { color: var(--student); font-weight: 700; }
+.asc-box .ok { color: var(--ok); font-weight: 700; }
+.asc-box .dim { opacity: 0.45; }
+
+/* ── STEP LIST ── */
+.step-list { list-style: none; margin-bottom: 1rem; }
+.step-list li {
+  display: flex; align-items: flex-start;
+  gap: 0.7rem; padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.85rem;
+}
+.step-list li:last-child { border-bottom: none; }
+.step-num {
+  background: var(--student); color: #1a0a00;
+  font-size: 0.65rem; font-weight: 800;
+  border-radius: 50%; width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 3px;
+  font-family: var(--mono);
+}
+.step-txt { flex: 1; }
+.step-txt strong { color: var(--student); }
+.step-note {
+  font-size: 0.73rem; color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+/* ── GEAR TABLE ── */
+.gear-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+.gear-table th {
+  text-align: left; padding: 6px 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  color: var(--student); font-family: var(--mono);
+  font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.gear-table td {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  vertical-align: top; color: var(--ink);
+  line-height: 1.5;
+}
+.gear-table tr:hover td { background: var(--student-glow); }
+.badge-pick {
+  background: var(--student); color: #1a0a00;
+  font-size: 0.6rem; font-weight: 800;
+  padding: 1px 5px; border-radius: 3px;
+  font-family: var(--mono);
+}
+.badge-free {
+  background: var(--ok); color: #052e16;
+  font-size: 0.6rem; font-weight: 800;
+  padding: 1px 5px; border-radius: 3px;
+  font-family: var(--mono);
+}
+
+/* ── PLUGIN CARDS ── */
+.plugin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px; margin-bottom: 1rem;
+}
+.plug-card {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  font-size: 0.81rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.plug-card:hover {
+  border-color: var(--student);
+  box-shadow: 0 4px 16px var(--student-glow);
+}
+.plug-icon { font-size: 1.5rem; margin-bottom: 6px; }
+.plug-name {
+  font-weight: 700; font-family: var(--mono);
+  color: var(--student); font-size: 0.8rem;
+  margin-bottom: 3px;
+}
+.plug-desc { font-size: 0.75rem; color: var(--ink-soft); line-height: 1.5; }
+.plug-link {
+  display: inline-block; margin-top: 6px;
+  font-size: 0.7rem; color: var(--student);
+  text-decoration: none; font-family: var(--mono);
+  font-weight: 700;
+}
+.plug-link:hover { text-decoration: underline; }
+
+/* ── FAQ ── */
+.faq-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.faq-q {
+  padding: 0.7rem 1rem;
+  font-weight: 700; font-size: 0.84rem;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--card-bg);
+  transition: background 0.15s;
+}
+.faq-q:hover { background: var(--student-glow); }
+.faq-q .arr {
+  margin-left: auto; font-family: var(--mono);
+  font-size: 0.75rem; color: var(--student);
+  transition: transform 0.2s;
+}
+.faq-item.open .faq-q .arr { transform: rotate(90deg); }
+.faq-a {
+  display: none; padding: 0.7rem 1rem;
+  font-size: 0.82rem; color: var(--ink-soft);
+  line-height: 1.6;
+  border-top: 1px solid var(--line);
+}
+.faq-item.open .faq-a { display: block; }
+
+/* ── CALLOUT ── */
+.callout {
+  background: var(--student-glow);
+  border-left: 3px solid var(--student);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.75rem 1rem;
+  font-size: 0.83rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.callout strong { color: var(--student); }
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.73rem;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+}
+footer a { color: var(--student); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* lang hide */
+[data-lang-hide] { display: none; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a class="nav-back" href="../index.html">&larr; 포탈</a>
+    <span class="nav-sep">/</span>
+    <span class="nav-title" id="navTitle">Cantabile 쉽게 시작</span>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-sm" id="langBtn" onclick="toggleLang()">EN</button>
+    <button class="btn-sm" id="themeBtn" onclick="toggleTheme()">Dark</button>
+    <a class="btn-sm" href="playground.html">Playground &rarr;</a>
+  </div>
+</nav>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+<div class="ascii-logo">
++------------------------------------------+
+|  ♪  CANTABILE  --  소연 첫 보컬 설정   ♪  |
+|  VST Host  ·  ASIO  ·  Mic  ·  Plugin   |
++------------------------------------------+</div>
+  <h1>
+    <span data-ko>Cantabile — 쉽게 시작</span>
+    <span data-en style="display:none">Cantabile — Easy Start</span>
+  </h1>
+  <div class="sub">
+    <span data-ko>소연의 첫 보컬 설정 가이드 · Newton School</span>
+    <span data-en style="display:none">Soyeon's first vocal setup guide · Newton School</span>
+  </div>
+  <div class="chain">
+    <span class="chain-step">마이크</span>
+    <span class="chain-arr">→</span>
+    <span class="chain-step">오디오 인터페이스</span>
+    <span class="chain-arr">→</span>
+    <span class="chain-step">ASIO 드라이버</span>
+    <span class="chain-arr">→</span>
+    <span class="chain-step">Cantabile</span>
+    <span class="chain-arr">→</span>
+    <span class="chain-step">Plugin (Reverb/EQ)</span>
+    <span class="chain-arr">→</span>
+    <span class="chain-step">소리 출력</span>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-title">바로가기</div>
+    <input class="sb-search" type="text" placeholder="용어 검색..." oninput="filterGlossary(this.value)" />
+
+    <div class="sb-nav">
+      <div class="sb-nav-label">섹션</div>
+      <a href="#sec1" data-ko>1. Cantabile 가 뭐야?</a>
+      <a href="#sec1" data-en style="display:none">1. What is Cantabile?</a>
+      <a href="#sec2" data-ko>2. 내가 필요한 것</a>
+      <a href="#sec2" data-en style="display:none">2. What You Need</a>
+      <a href="#sec3" data-ko>3. 다운로드 / 설치</a>
+      <a href="#sec3" data-en style="display:none">3. Download / Install</a>
+      <a href="#sec4" data-ko>4. 첫 설정</a>
+      <a href="#sec4" data-en style="display:none">4. First Setup</a>
+      <a href="#sec5" data-ko>5. 무료 플러그인</a>
+      <a href="#sec5" data-en style="display:none">5. Free Plugins</a>
+      <a href="#sec6" data-ko>6. 녹음 / 방송</a>
+      <a href="#sec6" data-en style="display:none">6. Recording / Stream</a>
+      <a href="#sec7" data-ko>7. 자주 묻는 것</a>
+      <a href="#sec7" data-en style="display:none">7. FAQ</a>
+    </div>
+
+    <hr class="gl-sep">
+    <div class="sb-title">용어 사전</div>
+
+    <div class="gl-item" data-terms="cantabile vst host">
+      <div class="gl-term">Cantabile</div>
+      <div class="gl-def">VST 플러그인을 실시간으로 돌리는 프로그램. 음악인 + 스트리머 표준 도구.</div>
+    </div>
+    <div class="gl-item" data-terms="asio 드라이버 driver">
+      <div class="gl-term">ASIO</div>
+      <div class="gl-def">소리 지연(레이턴시)을 줄이는 드라이버. 오디오 인터페이스에 필수.</div>
+    </div>
+    <div class="gl-item" data-terms="vst plugin 플러그인">
+      <div class="gl-term">VST Plugin</div>
+      <div class="gl-def">Cantabile 안에 꽂는 가상 악기 / 이펙터. Reverb, EQ 등.</div>
+    </div>
+    <div class="gl-item" data-terms="reverb 리버브 잔향">
+      <div class="gl-term">Reverb</div>
+      <div class="gl-def">공간 잔향 효과. 노래방 느낌 → 홀 느낌까지 조절 가능.</div>
+    </div>
+    <div class="gl-item" data-terms="eq equalizer 이퀄라이저">
+      <div class="gl-term">EQ (이퀄라이저)</div>
+      <div class="gl-def">소리 주파수를 올리거나 내림. 목소리를 더 선명하게 만들어 줌.</div>
+    </div>
+    <div class="gl-item" data-terms="compressor 컴프레서">
+      <div class="gl-term">Compressor</div>
+      <div class="gl-def">큰 소리는 줄이고, 작은 소리는 키워서 음량을 일정하게 맞춤.</div>
+    </div>
+    <div class="gl-item" data-terms="latency 레이턴시 지연">
+      <div class="gl-term">Latency (지연)</div>
+      <div class="gl-def">마이크에서 소리가 나온 뒤 귀에 들릴 때까지의 시간차. 작을수록 좋음.</div>
+    </div>
+    <div class="gl-item" data-terms="audio interface 오디오 인터페이스">
+      <div class="gl-term">Audio Interface</div>
+      <div class="gl-def">마이크를 컴퓨터에 연결하는 장치. USB로 연결함.</div>
+    </div>
+    <div class="gl-item" data-terms="obs open broadcaster 방송">
+      <div class="gl-term">OBS</div>
+      <div class="gl-def">무료 방송 / 녹화 프로그램. Cantabile 소리를 OBS로 전달해서 방송에 씀.</div>
+    </div>
+    <div class="gl-item" data-terms="buffer size 버퍼">
+      <div class="gl-term">Buffer Size</div>
+      <div class="gl-def">한 번에 처리하는 소리 양. 작을수록 지연 줄지만 CPU 부하 올라감.</div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- SEC 1: Cantabile 가 뭐야? -->
+    <section class="sec" id="sec1">
+      <div class="sec-num">Section 01</div>
+      <h2 class="sec-title">
+        <span data-ko>Cantabile 가 뭐야?</span>
+        <span data-en style="display:none">What is Cantabile?</span>
+      </h2>
+      <p class="sec-desc">
+        <span data-ko>노래할 때 마이크 소리에 리버브나 EQ 같은 효과를 실시간으로 입혀주는 프로그램이야. 방송, 녹음, 연습 모두 쓸 수 있어.</span>
+        <span data-en style="display:none">Cantabile is a program that applies effects like reverb and EQ to your mic in real time. Perfect for streaming, recording, and practice.</span>
+      </p>
+
+      <div class="asc-box"><span class="hi">+-- 어떤 상황에 쓰나? ---------------------------+</span>
+|                                               |
+|  노래 연습  →  혼자 연습할 때 리버브 걸기      |
+|  방송       →  OBS 에 이쁜 목소리 내보내기     |
+|  녹음       →  DAW 없이 간단 녹음              |
+|                                               |
+<span class="hi">+-----------------------------------------------+</span></div>
+
+      <div class="callout">
+        <strong>간단 비유:</strong>
+        <span data-ko> Cantabile = 노래방 기계의 컴퓨터 버전. 마이크를 꽂으면 실시간으로 이펙트 적용!</span>
+        <span data-en style="display:none"> Cantabile = karaoke machine for your PC. Plug in mic, get instant effects!</span>
+      </div>
+    </section>
+
+    <!-- SEC 2: 내가 필요한 것 -->
+    <section class="sec" id="sec2">
+      <div class="sec-num">Section 02</div>
+      <h2 class="sec-title">
+        <span data-ko>내가 필요한 것 (장비 + 소프트웨어)</span>
+        <span data-en style="display:none">What You Need (Gear + Software)</span>
+      </h2>
+      <p class="sec-desc">
+        <span data-ko>딱 2가지만 있으면 돼. 마이크 + 오디오 인터페이스. 이미 있으면 바로 설치로 넘어가!</span>
+        <span data-en style="display:none">You only need 2 things: a microphone + an audio interface. Already have them? Jump to install!</span>
+      </p>
+
+      <table class="gear-table">
+        <thead>
+          <tr>
+            <th>종류</th>
+            <th>추천</th>
+            <th>가격대</th>
+            <th>참고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>마이크</strong></td>
+            <td>Audio-Technica AT2020 <span class="badge-pick">PICK</span></td>
+            <td>~$100</td>
+            <td>XLR 연결 / 보컬에 최적</td>
+          </tr>
+          <tr>
+            <td><strong>마이크 (USB)</strong></td>
+            <td>Blue Yeti</td>
+            <td>~$130</td>
+            <td>오디오 인터페이스 없이 바로 꽂기</td>
+          </tr>
+          <tr>
+            <td><strong>오디오 인터페이스</strong></td>
+            <td>Focusrite Scarlett Solo <span class="badge-pick">PICK</span></td>
+            <td>~$120</td>
+            <td>ASIO 드라이버 지원 / USB-C</td>
+          </tr>
+          <tr>
+            <td><strong>Cantabile 소프트웨어</strong></td>
+            <td>Cantabile Lite <span class="badge-free">FREE</span></td>
+            <td>$0</td>
+            <td>처음엔 무료로 시작!</td>
+          </tr>
+          <tr>
+            <td><strong>ASIO 드라이버</strong></td>
+            <td>Focusrite Control / ASIO4ALL <span class="badge-free">FREE</span></td>
+            <td>$0</td>
+            <td>USB 마이크면 ASIO4ALL 사용</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="asc-box"><span class="hi">  XLR 마이크 경우:</span>
+  마이크 (XLR) → 오디오 인터페이스 → USB → 컴퓨터
+
+<span class="hi">  USB 마이크 경우 (더 간단):</span>
+  마이크 (USB) → 컴퓨터  <span class="ok">[인터페이스 불필요]</span></div>
+    </section>
+
+    <!-- SEC 3: 다운로드 / 설치 -->
+    <section class="sec" id="sec3">
+      <div class="sec-num">Section 03</div>
+      <h2 class="sec-title">
+        <span data-ko>다운로드 / 설치 (5 단계)</span>
+        <span data-en style="display:none">Download / Install (5 Steps)</span>
+      </h2>
+      <p class="sec-desc">
+        <span data-ko>총 5단계야. 천천히 따라가 보자!</span>
+        <span data-en style="display:none">5 steps total. Follow along!</span>
+      </p>
+
+      <ol class="step-list">
+        <li>
+          <span class="step-num">1</span>
+          <div class="step-txt">
+            <strong><span data-ko>Cantabile 공식 사이트 접속</span><span data-en style="display:none">Go to official site</span></strong>
+            <div class="step-note">
+              <span data-ko>→ <a href="https://www.cantabilesoftware.com" target="_blank" style="color:var(--student)">cantabilesoftware.com</a> 접속</span>
+              <span data-en style="display:none">→ Visit <a href="https://www.cantabilesoftware.com" target="_blank" style="color:var(--student)">cantabilesoftware.com</a></span>
+            </div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div class="step-txt">
+            <strong><span data-ko>"Download" 클릭 → Cantabile Lite 선택 (무료!)</span><span data-en style="display:none">Click "Download" → Choose Cantabile Lite (Free!)</span></strong>
+            <div class="step-note">
+              <span data-ko>Solo / Performer 는 유료야. Lite 로 시작하면 충분해.</span>
+              <span data-en style="display:none">Solo / Performer are paid. Lite is enough to start.</span>
+            </div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div class="step-txt">
+            <strong><span data-ko>설치 파일 실행 → "Next" 계속 클릭</span><span data-en style="display:none">Run installer → Keep clicking "Next"</span></strong>
+            <div class="step-note">
+              <span data-ko>기본 설정 그대로 OK. 설치 경로 바꾸지 않아도 됨.</span>
+              <span data-en style="display:none">Default settings are fine. No need to change install path.</span>
+            </div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <div class="step-txt">
+            <strong><span data-ko>ASIO 드라이버 설치</span><span data-en style="display:none">Install ASIO driver</span></strong>
+            <div class="step-note">
+              <span data-ko>Focusrite 인터페이스 있으면 → Focusrite Control 설치<br>USB 마이크만 있으면 → ASIO4ALL 설치 (무료, 구글 검색)</span>
+              <span data-en style="display:none">Focusrite interface → install Focusrite Control<br>USB mic only → install ASIO4ALL (free, google it)</span>
+            </div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">5</span>
+          <div class="step-txt">
+            <strong><span data-ko>마이크 / 인터페이스 연결 후 Cantabile 실행!</span><span data-en style="display:none">Connect mic / interface, launch Cantabile!</span></strong>
+            <div class="step-note">
+              <span data-ko>바탕화면 아이콘 더블클릭하면 시작.</span>
+              <span data-en style="display:none">Double-click the desktop icon to start.</span>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      <div class="asc-box"><span class="hi">설치 체크리스트:</span>
+  [<span class="ok">✓</span>] cantabilesoftware.com 접속
+  [<span class="ok">✓</span>] Cantabile Lite 다운로드
+  [<span class="ok">✓</span>] 설치 완료
+  [<span class="ok">✓</span>] ASIO 드라이버 설치
+  [<span class="ok">✓</span>] 마이크 연결 + 실행 <span class="ok">← 여기까지 하면 됨!</span></div>
+    </section>
+
+    <!-- SEC 4: 첫 설정 -->
+    <section class="sec" id="sec4">
+      <div class="sec-num">Section 04</div>
+      <h2 class="sec-title">
+        <span data-ko>첫 설정 (Input / Output)</span>
+        <span data-en style="display:none">First Setup (Input / Output)</span>
+      </h2>
+      <p class="sec-desc">
+        <span data-ko>Cantabile 처음 켰을 때 소리가 안 나오면 여기 설정부터 해!</span>
+        <span data-en style="display:none">If no sound when you first open Cantabile, start here!</span>
+      </p>
+
+      <ol class="step-list">
+        <li>
+          <span class="step-num">1</span>
+          <div class="step-txt">
+            <strong><span data-ko>상단 메뉴 → Tools → Options</span><span data-en style="display:none">Top menu → Tools → Options</span></strong>
+            <div class="step-note"><span data-ko>단축키: Ctrl + ,</span><span data-en style="display:none">Shortcut: Ctrl + ,</span></div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div class="step-txt">
+            <strong><span data-ko>Audio Engine 탭 선택</span><span data-en style="display:none">Select Audio Engine tab</span></strong>
+            <div class="step-note"><span data-ko>여기서 드라이버 선택함.</span><span data-en style="display:none">This is where you pick the driver.</span></div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div class="step-txt">
+            <strong><span data-ko>Driver Mode → ASIO 선택</span><span data-en style="display:none">Driver Mode → Select ASIO</span></strong>
+            <div class="step-note"><span data-ko>드롭다운에서 ASIO 로 바꿔. (WASAPI 는 지연이 좀 있어.)</span><span data-en style="display:none">Change dropdown to ASIO. (WASAPI has more latency.)</span></div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <div class="step-txt">
+            <strong><span data-ko>Audio Device → 네 인터페이스 / 마이크 선택</span><span data-en style="display:none">Audio Device → Select your interface / mic</span></strong>
+            <div class="step-note"><span data-ko>예: "Focusrite USB ASIO" 또는 "ASIO4ALL v2"</span><span data-en style="display:none">e.g. "Focusrite USB ASIO" or "ASIO4ALL v2"</span></div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">5</span>
+          <div class="step-txt">
+            <strong><span data-ko>Buffer Size → 256 또는 512 추천</span><span data-en style="display:none">Buffer Size → Try 256 or 512</span></strong>
+            <div class="step-note"><span data-ko>숫자 작을수록 지연 줄지만 컴퓨터 힘들어해. 소리 끊기면 올려봐.</span><span data-en style="display:none">Smaller = less delay but more CPU. Increase if audio glitches.</span></div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">6</span>
+          <div class="step-txt">
+            <strong><span data-ko>OK 클릭 → 마이크 말해보기 → 소리 나오면 성공!</span><span data-en style="display:none">Click OK → Talk into mic → If you hear sound, you're done!</span></strong>
+          </div>
+        </li>
+      </ol>
+
+      <div class="asc-box"><span class="hi">Tools → Options → Audio Engine</span>
+
+  Driver Mode  : <span class="ok">ASIO</span>
+  Audio Device : <span class="ok">Focusrite USB ASIO  (또는 ASIO4ALL v2)</span>
+  Buffer Size  : <span class="ok">256</span>  (작으면 128, 느리면 512)
+  Sample Rate  : <span class="ok">44100 Hz</span>
+
+  → OK 클릭 후 마이크 테스트!</div>
+    </section>
+
+    <!-- SEC 5: 무료 플러그인 -->
+    <section class="sec" id="sec5">
+      <div class="sec-num">Section 05</div>
+      <h2 class="sec-title">
+        <span data-ko>무료 플러그인 설치 (3 추천)</span>
+        <span data-en style="display:none">Free Plugin Install (3 Picks)</span>
+      </h2>
+      <p class="sec-desc">
+        <span data-ko>좋은 소리 내려면 플러그인이 필요해. 전부 무료야!</span>
+        <span data-en style="display:none">To sound great, you need plugins. All free!</span>
+      </p>
+
+      <div class="plugin-grid">
+        <div class="plug-card">
+          <div class="plug-icon">🌊</div>
+          <div class="plug-name">OrilRiver Reverb</div>
+          <div class="plug-desc">공간감 추가. 홀 / 룸 / 작은 공간 프리셋. 보컬에 딱 맞아.</div>
+          <a class="plug-link" href="https://www.kvraudio.com/product/orilriver_by_denis_tihanov" target="_blank">→ 다운로드</a>
+        </div>
+        <div class="plug-card">
+          <div class="plug-icon">🎚</div>
+          <div class="plug-name">MEqualizer (MFreeFXBundle)</div>
+          <div class="plug-desc">목소리 주파수 조절. 낮은 웅웅거림 제거 + 선명도 올리기.</div>
+          <a class="plug-link" href="https://www.meldaproduction.com/MFreeFXBundle" target="_blank">→ 다운로드</a>
+        </div>
+        <div class="plug-card">
+          <div class="plug-icon">🎛</div>
+          <div class="plug-name">OTT Compressor</div>
+          <div class="plug-desc">음량 일정하게 맞추기. 작은 소리 키우고, 큰 소리 다듬기.</div>
+          <a class="plug-link" href="https://xferrecords.com/freeware" target="_blank">→ 다운로드</a>
+        </div>
+      </div>
+
+      <ol class="step-list">
+        <li>
+          <span class="step-num">1</span>
+          <div class="step-txt">
+            <strong><span data-ko>플러그인 다운로드 후 설치 (.dll 파일을 VST 폴더에 넣기)</span><span data-en style="display:none">Download plugin, install (.dll goes into VST folder)</span></strong>
+            <div class="step-note"><span data-ko>보통 C:\Program Files\VSTPlugins\ 또는 C:\VST\ 에 넣으면 됨.</span><span data-en style="display:none">Usually C:\Program Files\VSTPlugins\ or C:\VST\</span></div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div class="step-txt">
+            <strong><span data-ko>Cantabile → Tools → Options → Plugin Folders → 경로 추가</span><span data-en style="display:none">Cantabile → Tools → Options → Plugin Folders → Add path</span></strong>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div class="step-txt">
+            <strong><span data-ko>"Scan Plugins" 클릭 → 플러그인 목록에 나타남!</span><span data-en style="display:none">Click "Scan Plugins" → appears in plugin list!</span></strong>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <div class="step-txt">
+            <strong><span data-ko>Cantabile 메인 화면 → + 버튼 → Plugin 추가 → 플러그인 선택</span><span data-en style="display:none">Main screen → + button → Add Plugin → select plugin</span></strong>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- SEC 6: 녹음 / 방송 -->
+    <section class="sec" id="sec6">
+      <div class="sec-num">Section 06</div>
+      <h2 class="sec-title">
+        <span data-ko>녹음 / 방송 시작 (OBS 연결)</span>
+        <span data-en style="display:none">Recording / Stream Start (OBS Link)</span>
+      </h2>
+      <p class="sec-desc">
+        <span data-ko>Cantabile 소리를 OBS 로 보내면 방송에서 이쁜 목소리 나와. VB-Cable 이라는 무료 프로그램 하나만 더 설치하면 돼.</span>
+        <span data-en style="display:none">Send Cantabile audio to OBS for beautiful voice on stream. Just install one free program: VB-Cable.</span>
+      </p>
+
+      <div class="asc-box"><span class="hi">Cantabile → OBS 연결 흐름:</span>
+
+  마이크 → Cantabile (플러그인 체인 적용)
+         → <span class="ok">VB-Cable (가상 케이블)</span>
+         → OBS 오디오 소스 = "CABLE Output"
+         → 방송 / 녹화 출력 <span class="hi">♪</span></div>
+
+      <ol class="step-list">
+        <li>
+          <span class="step-num">1</span>
+          <div class="step-txt">
+            <strong><span data-ko>VB-Cable 설치</span><span data-en style="display:none">Install VB-Cable</span></strong>
+            <div class="step-note">
+              <span data-ko>→ <a href="https://vb-audio.com/Cable/" target="_blank" style="color:var(--student)">vb-audio.com/Cable</a> (무료)</span>
+              <span data-en style="display:none">→ <a href="https://vb-audio.com/Cable/" target="_blank" style="color:var(--student)">vb-audio.com/Cable</a> (free)</span>
+            </div>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div class="step-txt">
+            <strong><span data-ko>Cantabile → Output Port → "CABLE Input (VB-Audio)" 선택</span><span data-en style="display:none">Cantabile → Output Port → select "CABLE Input (VB-Audio)"</span></strong>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div class="step-txt">
+            <strong><span data-ko>OBS → 오디오 소스 추가 → "오디오 입력 캡처" → "CABLE Output" 선택</span><span data-en style="display:none">OBS → Add audio source → "Audio Input Capture" → select "CABLE Output"</span></strong>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <div class="step-txt">
+            <strong><span data-ko>OBS 오디오 믹서에서 소리 확인 → 방송 시작!</span><span data-en style="display:none">Check audio in OBS mixer → Start streaming!</span></strong>
+          </div>
+        </li>
+      </ol>
+
+      <div class="callout">
+        <strong>TIP:</strong>
+        <span data-ko> 혼자 모니터링 하고 싶으면 헤드폰을 Cantabile Output 또는 인터페이스의 Direct Monitor 에 연결해!</span>
+        <span data-en style="display:none"> To monitor yourself, connect headphones to Cantabile output or your interface's Direct Monitor.</span>
+      </div>
+    </section>
+
+    <!-- SEC 7: FAQ -->
+    <section class="sec" id="sec7">
+      <div class="sec-num">Section 07</div>
+      <h2 class="sec-title">
+        <span data-ko>자주 묻는 것 (FAQ)</span>
+        <span data-en style="display:none">Frequently Asked Questions</span>
+      </h2>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span data-ko>소리가 아예 안 나와요!</span>
+          <span data-en style="display:none">No sound at all!</span>
+          <span class="arr">→</span>
+        </div>
+        <div class="faq-a">
+          <span data-ko>Tools → Options → Audio Engine 에서 ASIO 드라이버 선택됐는지 확인. 마이크/인터페이스가 USB에 제대로 연결됐는지 확인.</span>
+          <span data-en style="display:none">Check Tools → Options → Audio Engine, make sure ASIO driver is selected. Verify mic/interface is properly connected via USB.</span>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span data-ko>소리에 잡음(윙윙)이 있어요.</span>
+          <span data-en style="display:none">There's hum/noise in the sound.</span>
+          <span class="arr">→</span>
+        </div>
+        <div class="faq-a">
+          <span data-ko>USB 허브 말고 컴퓨터 본체에 직접 꽂어봐. MEqualizer 로 60-120Hz 구간을 살짝 내려도 돼.</span>
+          <span data-en style="display:none">Try plugging directly into your PC instead of a USB hub. Also try cutting 60-120Hz with MEqualizer.</span>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span data-ko>소리가 끊겨요 (딱딱 소리).</span>
+          <span data-en style="display:none">Audio is glitching (crackling sounds).</span>
+          <span class="arr">→</span>
+        </div>
+        <div class="faq-a">
+          <span data-ko>Buffer Size 를 키워봐 (128 → 256 → 512). CPU 과부하일 수 있어.</span>
+          <span data-en style="display:none">Try increasing Buffer Size (128 → 256 → 512). Might be CPU overload.</span>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span data-ko>플러그인이 목록에 안 나와요.</span>
+          <span data-en style="display:none">Plugin doesn't appear in the list.</span>
+          <span class="arr">→</span>
+        </div>
+        <div class="faq-a">
+          <span data-ko>Tools → Options → Plugin Folders 에서 VST 폴더 경로 추가 후 "Scan" 클릭. 64bit 플러그인인지 확인 (32bit 호환 안 될 수 있음).</span>
+          <span data-en style="display:none">Add VST folder path in Tools → Options → Plugin Folders then click "Scan". Make sure plugin is 64-bit (32-bit may not work).</span>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span data-ko>OBS 에서 Cantabile 소리가 안 들려요.</span>
+          <span data-en style="display:none">OBS can't hear Cantabile audio.</span>
+          <span class="arr">→</span>
+        </div>
+        <div class="faq-a">
+          <span data-ko>VB-Cable 설치됐는지 확인. Cantabile Output = "CABLE Input", OBS 소스 = "CABLE Output" 으로 설정됐는지 확인.</span>
+          <span data-en style="display:none">Check VB-Cable is installed. Cantabile Output = "CABLE Input", OBS source = "CABLE Output".</span>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span data-ko>Cantabile 유료 버전이 필요한가요?</span>
+          <span data-en style="display:none">Do I need the paid version?</span>
+          <span class="arr">→</span>
+        </div>
+        <div class="faq-a">
+          <span data-ko>처음엔 Lite (무료) 로도 충분해! 나중에 더 많은 플러그인 동시 사용이나 세트리스트 기능 쓰고 싶을 때 업그레이드 하면 돼.</span>
+          <span data-en style="display:none">Lite (free) is plenty for starting out! Upgrade later if you need more simultaneous plugins or setlist features.</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <span data-ko>Newton School &middot; 소연 보컬 가이드 &middot; 2026-05-17</span>
+    <span data-en style="display:none">Newton School &middot; Soyeon Vocal Guide &middot; 2026-05-17</span>
+  </div>
+  <div style="margin-top:4px;">
+    <a href="playground.html" data-ko>→ Playground (직접 해보기)</a>
+    <a href="playground.html" data-en style="display:none">→ Playground (Try it yourself)</a>
+    &nbsp;|&nbsp;
+    <a href="../cantabile/index.html" data-ko>고급 가이드 (Kenny 자리)</a>
+    <a href="../cantabile/index.html" data-en style="display:none">Advanced Guide (Kenny's version)</a>
+    &nbsp;|&nbsp;
+    <a href="../index.html" data-ko>포탈로 돌아가기</a>
+    <a href="../index.html" data-en style="display:none">Back to portal</a>
+  </div>
+</footer>
+
+<script>
+// ── THEME ──
+const html = document.documentElement;
+let theme = localStorage.getItem('traci-theme') || 'light';
+applyTheme(theme);
+function applyTheme(t) {
+  theme = t;
+  html.dataset.theme = t;
+  document.getElementById('themeBtn').textContent = t === 'light' ? 'Dark' : 'Light';
+  localStorage.setItem('traci-theme', t);
+}
+function toggleTheme() { applyTheme(theme === 'light' ? 'dark' : 'light'); }
+
+// ── LANG ──
+let lang = localStorage.getItem('traci-lang') || 'ko';
+applyLang(lang);
+function applyLang(l) {
+  lang = l;
+  document.getElementById('langBtn').textContent = l === 'ko' ? 'EN' : 'KO';
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    el.style.display = l === 'ko' ? '' : 'none';
+  });
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.style.display = l === 'en' ? '' : 'none';
+  });
+  localStorage.setItem('traci-lang', l);
+}
+function toggleLang() { applyLang(lang === 'ko' ? 'en' : 'ko'); }
+
+// ── FAQ ──
+function toggleFaq(el) { el.classList.toggle('open'); }
+
+// ── GLOSSARY SEARCH ──
+function filterGlossary(val) {
+  const q = val.toLowerCase();
+  document.querySelectorAll('.gl-item').forEach(item => {
+    const terms = (item.dataset.terms || '') + ' ' + item.textContent;
+    item.classList.toggle('hidden', q.length > 0 && !terms.toLowerCase().includes(q));
+  });
+}
+</script>
+</body>
+</html>
