@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<!--
+  Traci Baek (Soyeon) -- Cantabile Vocal Setup Interactive Guide
+  Newton School / 2026-05-16
+  Theme: warm amber -- Traci portal consistent
+  Sources: cantabile-vocal-setup.md + asio-audio-interface.md + mic-vst-plugin.md
+  Features: 5-tab layout, sticky glossary, hover cards, plugin modal, light/dark, ko/en
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cantabile Vocal Setup &mdash; 소연 가이드</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ── TOKENS (Traci portal 정합) ── */
+  :root {
+    --student:      #f59e0b;
+    --student-soft: #451a03;
+    --student-deep: #fde68a;
+    --student-glow: rgba(245,158,11,0.18);
+    --ink:          #fef3c7;
+    --ink-soft:     #d97706;
+    --paper:        #1a1208;
+    --bg:           #0c0a04;
+    --line:         #2d1f06;
+    --card-bg:      #1f1508;
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans:  'Inter', system-ui, sans-serif;
+    --mono:  'Cascadia Code', 'Consolas', monospace;
+    --radius: 10px;
+  }
+  [data-theme="light"] {
+    --student:      #d97706;
+    --student-soft: #fef3c7;
+    --student-deep: #92400e;
+    --student-glow: rgba(217,119,6,0.12);
+    --ink:          #451a03;
+    --ink-soft:     #78350f;
+    --paper:        #fffbeb;
+    --bg:           #fefce8;
+    --line:         #fde68a;
+    --card-bg:      #fffbeb;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.65;
+    transition: background 0.2s, color 0.2s;
+  }
+  body.no-scroll { overflow: hidden; }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 300;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem; height: 50px;
+  }
+  .nav-back {
+    font-size: 0.78rem; font-weight: 600;
+    color: var(--student); text-decoration: none;
+    letter-spacing: 0.05em; transition: opacity 0.15s;
+  }
+  .nav-back:hover { opacity: 0.75; }
+  .nav-title {
+    font-size: 0.75rem; font-weight: 700;
+    color: var(--ink-soft); letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .nav-actions { display: flex; gap: 0.5rem; align-items: center; }
+  .btn-sm {
+    background: var(--student-soft);
+    border: 1px solid var(--line);
+    color: var(--student);
+    border-radius: 6px; padding: 0.25rem 0.6rem;
+    font-size: 0.72rem; font-weight: 600;
+    cursor: pointer; transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--paper);
+    padding: 36px 2rem 24px;
+    border-bottom: 3px double var(--student);
+    text-align: center;
+  }
+  .masthead .badge {
+    display: inline-block;
+    background: var(--student-soft);
+    color: var(--student);
+    font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    border-radius: 4px; padding: 2px 8px;
+    margin-bottom: 10px;
+    border: 1px solid var(--student);
+  }
+  .masthead h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.7rem, 5vw, 2.6rem);
+    font-weight: 700; line-height: 1.1; margin-bottom: 6px;
+  }
+  .masthead .sub {
+    font-family: var(--serif);
+    font-style: italic; font-size: 0.92rem;
+    color: var(--ink-soft); margin-bottom: 14px;
+  }
+  .chain-visual {
+    display: flex; flex-wrap: wrap;
+    justify-content: center; align-items: center;
+    gap: 0; margin-top: 1rem; font-size: 0.75rem;
+  }
+  .cv-step {
+    background: var(--student-soft);
+    border: 1px solid var(--student);
+    color: var(--student);
+    padding: 5px 12px; border-radius: 4px;
+    font-weight: 600; white-space: nowrap;
+  }
+  .cv-arrow {
+    color: var(--ink-soft); padding: 0 6px;
+    font-size: 1rem; line-height: 1;
+  }
+
+  /* ── LAYOUT: sidebar + content ── */
+  .layout {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: calc(100vh - 50px - 200px);
+  }
+
+  /* ── STICKY GLOSSARY SIDEBAR ── */
+  .sidebar {
+    width: 210px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 50px;
+    height: calc(100vh - 50px);
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    background: var(--paper);
+    padding: 1.2rem 1rem;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--student); border-radius: 2px; }
+  .gl-title {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--student); margin-bottom: 0.8rem;
+  }
+  .gl-item {
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .gl-item:last-child { border-bottom: none; margin-bottom: 0; }
+  .gl-term {
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--student); margin-bottom: 2px;
+    font-family: var(--mono);
+  }
+  .gl-def {
+    font-size: 0.68rem; color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  @media (max-width: 700px) {
+    .sidebar { display: none; }
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    flex: 1;
+    padding: 1.5rem 1.75rem;
+    min-width: 0;
+  }
+
+  /* ── TABS ── */
+  .tab-bar {
+    display: flex; flex-wrap: wrap;
+    gap: 4px; margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    background: none; border: none;
+    color: var(--ink-soft);
+    font-family: var(--sans);
+    font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.9rem;
+    cursor: pointer; border-radius: 6px 6px 0 0;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .tab-btn:hover { color: var(--student); background: var(--student-glow); }
+  .tab-btn.active {
+    color: var(--student);
+    border-bottom-color: var(--student);
+    background: var(--student-soft);
+  }
+  [data-theme="light"] .tab-btn.active { background: var(--student-glow); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── SECTION HEADER ── */
+  .sec-label {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--student); margin-bottom: 6px;
+  }
+  .sec-title {
+    font-family: var(--serif);
+    font-size: 1.35rem; font-weight: 700;
+    margin-bottom: 8px; line-height: 1.2;
+  }
+  .sec-desc {
+    font-size: 0.83rem; color: var(--ink-soft);
+    margin-bottom: 1.2rem; line-height: 1.7;
+  }
+
+  /* ── EDITION CARDS (Setup tab) ── */
+  .edition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px; margin-bottom: 1.6rem;
+  }
+  .ed-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.2rem;
+    position: relative; overflow: hidden;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  }
+  .ed-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--line);
+    transition: background 0.2s;
+  }
+  .ed-card.pick::before { background: var(--student); }
+  .ed-card:hover { border-color: var(--student); transform: translateY(-2px); box-shadow: 0 6px 20px var(--student-glow); }
+  .ed-name {
+    font-weight: 700; font-size: 0.95rem;
+    margin-bottom: 3px; color: var(--ink);
+  }
+  .ed-price {
+    font-family: var(--mono); font-size: 0.8rem;
+    color: var(--student); font-weight: 700; margin-bottom: 8px;
+  }
+  .ed-desc { font-size: 0.75rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: 8px; }
+  .ed-pick-badge {
+    display: inline-block;
+    background: var(--student); color: #1a0a00;
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    border-radius: 3px; padding: 1px 6px;
+  }
+
+  /* ── OBS FLOW (Setup tab) ── */
+  .flow-box {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.4rem; margin-bottom: 1.4rem;
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--ink-soft); line-height: 2;
+    overflow-x: auto;
+  }
+  .flow-box .hi { color: var(--student); font-weight: 700; }
+  .flow-box .dim { color: var(--ink-soft); opacity: 0.55; }
+
+  /* ── NEXT STEPS (Setup tab) ── */
+  .steps-list { list-style: none; counter-reset: steps; margin-bottom: 1.4rem; }
+  .steps-list li {
+    counter-increment: steps;
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 0.6rem 0; border-bottom: 1px solid var(--line);
+    font-size: 0.83rem;
+  }
+  .steps-list li:last-child { border-bottom: none; }
+  .steps-list li::before {
+    content: counter(steps);
+    background: var(--student); color: #1a0a00;
+    font-size: 0.68rem; font-weight: 800;
+    border-radius: 50%; width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+
+  /* ── ASIO TIER CARDS ── */
+  .tier-section { margin-bottom: 1.6rem; }
+  .tier-label {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--student); margin-bottom: 0.5rem;
+    padding: 0 0 4px; border-bottom: 1px solid var(--student);
+    display: inline-block;
+  }
+  .asio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px; margin-top: 8px;
+  }
+  .asio-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+    transition: all 0.15s; cursor: default;
+    position: relative;
+  }
+  .asio-card:hover {
+    border-color: var(--student);
+    box-shadow: 0 4px 16px var(--student-glow);
+    transform: translateY(-2px);
+  }
+  .asio-card:hover .asio-spec { max-height: 120px; opacity: 1; }
+  .asio-name { font-weight: 700; font-size: 0.85rem; margin-bottom: 3px; color: var(--ink); }
+  .asio-price { font-family: var(--mono); font-size: 0.78rem; color: var(--student); font-weight: 700; margin-bottom: 4px; }
+  .asio-short { font-size: 0.72rem; color: var(--ink-soft); line-height: 1.5; }
+  .asio-pick {
+    font-size: 9px; font-weight: 800;
+    color: var(--student); text-transform: uppercase;
+    letter-spacing: 0.08em; margin-top: 5px; display: block;
+  }
+  .asio-spec {
+    max-height: 0; overflow: hidden; opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+    font-size: 0.7rem; color: var(--ink-soft);
+    line-height: 1.6; margin-top: 6px;
+    border-top: 1px solid var(--line); padding-top: 6px;
+  }
+
+  /* ── BUFFER TABLE ── */
+  .buf-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-bottom: 1.2rem; }
+  .buf-table th {
+    background: var(--student-soft); color: var(--student);
+    font-weight: 700; text-align: left; padding: 7px 10px;
+    font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase;
+    border-bottom: 1px solid var(--student);
+  }
+  .buf-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); color: var(--ink-soft); }
+  .buf-table tr:hover td { background: var(--student-glow); color: var(--ink); }
+  .buf-table .hi-row td { color: var(--student); font-weight: 700; }
+  .buf-table .hi-row td:first-child::after { content: " ✓"; }
+
+  /* ── MIC CARDS ── */
+  .mic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin-bottom: 1.4rem;
+  }
+  .mic-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    position: relative;
+    transition: all 0.15s;
+  }
+  .mic-card:hover { border-color: var(--student); transform: translateY(-2px); box-shadow: 0 4px 14px var(--student-glow); }
+  .mic-type-badge {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--card-bg); border: 1px solid var(--line);
+    color: var(--ink-soft); border-radius: 3px; padding: 1px 5px;
+  }
+  .mic-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 3px; color: var(--ink); }
+  .mic-price { font-family: var(--mono); font-size: 0.78rem; color: var(--student); font-weight: 700; margin-bottom: 6px; }
+  .mic-desc { font-size: 0.72rem; color: var(--ink-soft); line-height: 1.55; }
+  .mic-pick {
+    margin-top: 6px; display: inline-block;
+    background: var(--student); color: #1a0a00;
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    border-radius: 3px; padding: 1px 6px;
+  }
+
+  /* ── COMPARE BOX ── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-bottom: 1.4rem; }
+  .compare-table th {
+    background: var(--student-soft); color: var(--student);
+    font-weight: 700; text-align: left; padding: 7px 10px;
+    font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase;
+    border-bottom: 1px solid var(--student);
+  }
+  .compare-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); color: var(--ink-soft); }
+  .compare-table tr:hover td { background: var(--student-glow); color: var(--ink); }
+
+  /* ── PLUGIN GRID (5x5) ── */
+  .plugin-section { margin-bottom: 1.8rem; }
+  .plugin-cat-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--student); margin-bottom: 8px;
+  }
+  .plugin-cat-label::after {
+    content: ''; flex: 1;
+    height: 1px; background: var(--line);
+  }
+  .plugin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+  }
+  .plugin-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.8rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .plugin-card:hover {
+    border-color: var(--student);
+    box-shadow: 0 4px 14px var(--student-glow);
+    transform: translateY(-2px);
+  }
+  .plugin-card::after {
+    content: '+';
+    position: absolute; top: 8px; right: 10px;
+    font-size: 14px; color: var(--student); font-weight: 700;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .plugin-card:hover::after { opacity: 1; }
+  .pc-name { font-weight: 700; font-size: 0.8rem; margin-bottom: 2px; color: var(--ink); }
+  .pc-price {
+    font-family: var(--mono); font-size: 0.72rem;
+    margin-bottom: 4px;
+  }
+  .pc-price.free { color: #4ade80; }
+  .pc-price.paid { color: var(--student); }
+  .pc-desc { font-size: 0.68rem; color: var(--ink-soft); line-height: 1.5; }
+  .pc-pick {
+    margin-top: 5px; display: inline-block;
+    background: var(--student); color: #1a0a00;
+    font-size: 8px; font-weight: 800;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    border-radius: 2px; padding: 1px 5px;
+  }
+
+  /* ── FREE vs PAID SUMMARY TABLE ── */
+  .fvp-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 0.5rem; }
+  .fvp-table th {
+    background: var(--student-soft); color: var(--student);
+    font-weight: 700; text-align: left; padding: 7px 10px;
+    font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase;
+    border-bottom: 1px solid var(--student);
+  }
+  .fvp-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); color: var(--ink-soft); }
+  .fvp-table tr:hover td { background: var(--student-glow); color: var(--ink); }
+  .fvp-table .free-col { color: #4ade80; font-weight: 600; }
+  .fvp-table .paid-col { color: var(--student); font-weight: 600; }
+  .fvp-table .total-row td { font-weight: 700; color: var(--ink); border-top: 2px solid var(--student); }
+
+  /* ── MIX CHAIN (Mix tab) ── */
+  .chain-flow {
+    display: flex; flex-wrap: wrap;
+    align-items: stretch; gap: 0;
+    margin-bottom: 1.6rem;
+  }
+  .chain-node {
+    flex: 1; min-width: 100px;
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 0; padding: 1rem 0.9rem;
+    text-align: center; position: relative;
+    transition: all 0.15s; cursor: default;
+  }
+  .chain-node:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+  .chain-node:last-child { border-radius: 0 var(--radius) var(--radius) 0; border-right: 1px solid var(--line); }
+  .chain-node:not(:last-child) { border-right: none; }
+  .chain-node::after {
+    content: '\2192';
+    position: absolute; right: -12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--student); font-size: 16px; font-weight: 700;
+    z-index: 2;
+  }
+  .chain-node:last-child::after { display: none; }
+  .chain-node:hover { background: var(--student-soft); border-color: var(--student); z-index: 1; }
+  .cn-num {
+    display: block; font-size: 9px; font-weight: 700;
+    color: var(--student); letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .cn-label {
+    font-size: 0.78rem; font-weight: 700; color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .cn-plugin { font-size: 0.65rem; color: var(--ink-soft); font-family: var(--mono); }
+
+  .obs-chain-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.4rem;
+  }
+  .obs-chain-label {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--student); margin-bottom: 0.8rem;
+  }
+  .obs-row {
+    display: flex; flex-wrap: wrap;
+    align-items: center; gap: 0;
+    margin-bottom: 0.4rem; font-size: 0.75rem;
+  }
+  .obs-node {
+    background: var(--student-soft);
+    border: 1px solid var(--student);
+    color: var(--student); font-weight: 600;
+    padding: 3px 10px; border-radius: 4px;
+    white-space: nowrap;
+  }
+  .obs-arrow { color: var(--ink-soft); padding: 0 6px; font-size: 1rem; }
+  .obs-node.dim { background: var(--card-bg); border-color: var(--line); color: var(--ink-soft); }
+
+  .mix-tip {
+    background: var(--card-bg);
+    border-left: 3px solid var(--student);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 0.9rem 1.2rem;
+    font-size: 0.8rem; color: var(--ink-soft);
+    line-height: 1.7; margin-bottom: 1rem;
+  }
+  .mix-tip strong { color: var(--ink); }
+
+  /* ── SOURCES ── */
+  .sources-list {
+    list-style: none; font-size: 0.72rem; color: var(--ink-soft);
+  }
+  .sources-list li { padding: 3px 0; border-bottom: 1px solid var(--line); }
+  .sources-list li:last-child { border-bottom: none; }
+  .sources-list a {
+    color: var(--student); text-decoration: none;
+  }
+  .sources-list a:hover { text-decoration: underline; }
+
+  /* ── MODAL (plugin detail) ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,8,4,0.88);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--paper);
+    border-radius: 12px;
+    width: min(520px, 96vw);
+    max-height: 80vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    border: 1px solid var(--student);
+  }
+  .modal-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0; background: var(--paper);
+  }
+  .modal-title { font-weight: 700; font-size: 0.9rem; color: var(--ink); }
+  .modal-close {
+    background: none; border: none;
+    font-size: 20px; cursor: pointer;
+    color: var(--ink-soft); padding: 0 4px;
+    line-height: 1; transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--student); }
+  .modal-body {
+    padding: 1.2rem 1.4rem;
+    overflow-y: auto; flex: 1;
+  }
+  .modal-body::-webkit-scrollbar { width: 4px; }
+  .modal-body::-webkit-scrollbar-thumb { background: var(--student); border-radius: 2px; }
+  .m-row { display: flex; gap: 0.6rem; align-items: baseline; margin-bottom: 0.55rem; font-size: 0.8rem; }
+  .m-key { color: var(--student); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; min-width: 80px; flex-shrink: 0; }
+  .m-val { color: var(--ink-soft); line-height: 1.6; }
+  .m-val a { color: var(--student); }
+  .m-pick-block {
+    margin-top: 1rem;
+    background: var(--student-soft);
+    border-left: 3px solid var(--student);
+    padding: 0.7rem 0.9rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 0.78rem; color: var(--ink);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+  }
+  footer a { color: var(--student); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-back" href="../index.html">&#8592; <span data-ko="소연 포탈" data-en="Soyeon Portal">소연 포탈</span></a>
+  <div class="nav-title" data-ko="Cantabile 보컬 설정" data-en="Cantabile Vocal Setup">Cantabile 보컬 설정</div>
+  <div class="nav-actions">
+    <button class="btn-sm" id="lang-toggle" onclick="toggleLang()">EN</button>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Light</button>
+  </div>
+</nav>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="badge" data-ko="Streaming Setup" data-en="Streaming Setup">Streaming Setup</div>
+  <h1 data-ko="Cantabile 보컬 설정" data-en="Cantabile Vocal Setup">Cantabile 보컬 설정</h1>
+  <div class="sub" data-ko="VST Host &middot; ASIO &middot; 마이크 &middot; 플러그인 체인" data-en="VST Host &middot; ASIO &middot; Mic &middot; Plugin Chain">VST Host &middot; ASIO &middot; 마이크 &middot; 플러그인 체인</div>
+  <div class="chain-visual">
+    <div class="cv-step" data-ko="마이크" data-en="Mic">마이크</div>
+    <div class="cv-arrow">&#8594;</div>
+    <div class="cv-step">ASIO</div>
+    <div class="cv-arrow">&#8594;</div>
+    <div class="cv-step">Cantabile</div>
+    <div class="cv-arrow">&#8594;</div>
+    <div class="cv-step">VST Chain</div>
+    <div class="cv-arrow">&#8594;</div>
+    <div class="cv-step">OBS</div>
+    <div class="cv-arrow">&#8594;</div>
+    <div class="cv-step" data-ko="스트리밍" data-en="Streaming">스트리밍</div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR GLOSSARY -->
+  <aside class="sidebar">
+    <div class="gl-title" data-ko="용어 사전" data-en="Glossary">용어 사전</div>
+
+    <div class="gl-item">
+      <div class="gl-term">VST</div>
+      <div class="gl-def" data-ko="Virtual Studio Technology. 소프트웨어 플러그인 표준 (Steinberg)." data-en="Virtual Studio Technology. Software plugin standard by Steinberg.">Virtual Studio Technology. 소프트웨어 플러그인 표준 (Steinberg).</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">ASIO</div>
+      <div class="gl-def" data-ko="Audio Stream I/O. 저지연 드라이버. DAW / VST Host 전용." data-en="Audio Stream I/O. Low-latency driver. DAW / VST Host only.">Audio Stream I/O. 저지연 드라이버. DAW / VST Host 전용.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Buffer</div>
+      <div class="gl-def" data-ko="샘플 단위 처리 크기. 낮을수록 지연 적음, CPU 부담 높음." data-en="Processing chunk in samples. Lower = less latency, more CPU.">샘플 단위 처리 크기. 낮을수록 지연 적음, CPU 부담 높음.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Latency</div>
+      <div class="gl-def" data-ko="소리 지연. 128 samples @ 44.1kHz = ~2.9ms. 10ms 이하 = OK." data-en="Audio delay. 128 samples @ 44.1kHz = ~2.9ms. Under 10ms = OK.">소리 지연. 128 @ 44.1kHz = ~2.9ms.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">EQ</div>
+      <div class="gl-def" data-ko="Equalizer. 주파수 조정. 고역/저역 커팅." data-en="Equalizer. Frequency shaping. High-pass / low-pass cuts.">Equalizer. 주파수 조정.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Compressor</div>
+      <div class="gl-def" data-ko="다이나믹 평탄화. 크고 작은 소리 균형." data-en="Dynamic leveling. Balances loud and soft parts.">다이나믹 평탄화.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Reverb</div>
+      <div class="gl-def" data-ko="공간 잔향. 노래방 핵심 이펙트." data-en="Room reflection effect. Core for karaoke feel.">공간 잔향. 노래방 핵심.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Autotune</div>
+      <div class="gl-def" data-ko="음정 교정 / 변조. 실시간 피치 보정." data-en="Pitch correction / modulation in real time.">음정 교정 / 변조.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">VB-CABLE</div>
+      <div class="gl-def" data-ko="가상 오디오 케이블. Cantabile → OBS 연결." data-en="Virtual audio cable. Routes Cantabile output to OBS.">가상 오디오 케이블.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Snapshot</div>
+      <div class="gl-def" data-ko="Cantabile song 상태 저장. 순간 recall 가능." data-en="Saved state in Cantabile. Instant recall.">Cantabile 상태 저장.</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TABS -->
+    <div class="tab-bar" role="tablist">
+      <button class="tab-btn active" role="tab" onclick="switchTab('setup')" data-ko="Setup" data-en="Setup">Setup</button>
+      <button class="tab-btn" role="tab" onclick="switchTab('asio')" data-ko="ASIO" data-en="ASIO">ASIO</button>
+      <button class="tab-btn" role="tab" onclick="switchTab('mic')" data-ko="마이크" data-en="Mic">마이크</button>
+      <button class="tab-btn" role="tab" onclick="switchTab('plugin')" data-ko="플러그인" data-en="Plugin">플러그인</button>
+      <button class="tab-btn" role="tab" onclick="switchTab('mix')" data-ko="믹스 체인" data-en="Mix Chain">믹스 체인</button>
+    </div>
+
+    <!-- ══ TAB: SETUP ══ -->
+    <div class="tab-panel active" id="tab-setup">
+      <div class="sec-label" data-ko="Cantabile 에디션" data-en="Cantabile Edition">Cantabile 에디션</div>
+      <div class="sec-title" data-ko="어떤 버전을 써야 할까?" data-en="Which edition should I use?">어떤 버전을 써야 할까?</div>
+      <div class="sec-desc" data-ko="Cantabile = Windows 전용 VST Host. 라이브 보컬 / 노래방 / 스트리밍에 최적화. DAW 없이 바로 VST 체인 돌림." data-en="Cantabile = Windows-only VST Host. Optimized for live vocal / karaoke / streaming. Run VST chains without a DAW.">Cantabile = Windows 전용 VST Host. 라이브 보컬 / 노래방 / 스트리밍에 최적화. DAW 없이 바로 VST 체인 돌림.</div>
+
+      <div class="edition-grid">
+        <div class="ed-card pick">
+          <div class="ed-name">Lite</div>
+          <div class="ed-price">FREE</div>
+          <div class="ed-desc" data-ko="VST 호스팅 기본. 처음 시작 자리." data-en="Basic VST hosting. First-timer start.">VST 호스팅 기본. 처음 시작 자리.</div>
+          <span class="ed-pick-badge" data-ko="Kenny 픽 (시작)" data-en="Kenny Pick (Start)">Kenny 픽 (시작)</span>
+        </div>
+        <div class="ed-card">
+          <div class="ed-name">Solo</div>
+          <div class="ed-price">~$69</div>
+          <div class="ed-desc" data-ko="Multi-track + MIDI routing. 노래방 + 1~2 이펙트 체인." data-en="Multi-track + MIDI routing. Karaoke + 1-2 effect chains.">Multi-track + MIDI. 노래방 + 이펙트 체인.</div>
+        </div>
+        <div class="ed-card">
+          <div class="ed-name">Performer</div>
+          <div class="ed-price">~$229</div>
+          <div class="ed-desc" data-ko="무제한 song / set list / 풀 라이브. 가족 라이브 + Valorant 동시." data-en="Unlimited songs / set lists / full live. Family live + Valorant streaming.">무제한 song / set list. 가족 라이브 + 스트리밍.</div>
+        </div>
+      </div>
+
+      <div class="sec-label" data-ko="신호 흐름" data-en="Signal Flow">신호 흐름</div>
+      <div class="sec-title" data-ko="Cantabile + OBS + Valorant" data-en="Cantabile + OBS + Valorant">Cantabile + OBS + Valorant</div>
+      <div class="flow-box">
+        <span class="hi">[Mic]</span> &rarr; <span class="hi">[Fireface UCX / ASIO]</span> &rarr; <span class="hi">[Cantabile (VST chain)]</span> &rarr; <span class="hi">[VB-CABLE]</span><br>
+        <span class="dim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&#8595;<br>
+        <span class="hi">[Valorant game audio]</span> &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&rarr; <span class="hi">[OBS Studio]</span> &rarr; YouTube / Twitch<br>
+        <span class="hi">[Backing track / 노래방 mp3]</span> &rarr; <span class="hi">[Cantabile]</span> &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&rarr; <span class="dim">(same OBS mix)</span>
+      </div>
+
+      <div class="sec-label" data-ko="다음 단계" data-en="Next Steps">다음 단계</div>
+      <ol class="steps-list">
+        <li data-ko="Cantabile Lite 다운로드 (cantabilesoftware.com) — FREE" data-en="Download Cantabile Lite from cantabilesoftware.com — FREE">Cantabile Lite 다운로드 (cantabilesoftware.com) &mdash; FREE</li>
+        <li data-ko="Fireface USB 드라이버 최신 버전 확인 (rme-audio.de)" data-en="Check latest Fireface USB driver at rme-audio.de">Fireface USB 드라이버 최신 버전 확인</li>
+        <li data-ko="Valhalla Supermassive (free reverb) 설치" data-en="Install Valhalla Supermassive (free reverb)">Valhalla Supermassive 설치 (무료 리버브)</li>
+        <li data-ko="마이크 input → reverb → output 1 chain 테스트" data-en="Test 1 chain: mic input → reverb → output">마이크 &rarr; reverb &rarr; output 1 chain 테스트</li>
+        <li data-ko="OBS + VB-CABLE 라우팅 연결" data-en="Connect OBS + VB-CABLE routing">OBS + VB-CABLE 라우팅</li>
+        <li data-ko="Spike Rush 1 판 + 노래 1 곡 라이브 시연" data-en="Spike Rush 1 round + 1 song live test">Spike Rush 1 판 + 노래 1 곡 라이브 시연</li>
+      </ol>
+
+      <div class="sec-label" data-ko="출처" data-en="Sources">출처</div>
+      <ul class="sources-list">
+        <li><a href="https://www.cantabilesoftware.com/" target="_blank" rel="noopener">Cantabile official site</a></li>
+        <li><a href="https://blog.landr.com/best-vst-host/" target="_blank" rel="noopener">LANDR &mdash; 8 Best VST Hosts for Live Performance 2026</a></li>
+        <li><a href="https://www.propelrc.com/how-to-use-vst-plugin-with-obs-and-discord/" target="_blank" rel="noopener">VST Plugin with OBS and Discord 2026</a></li>
+        <li><a href="https://kudos.tv/blogs/stream-blog/virtual-audio-cable" target="_blank" rel="noopener">Virtual Audio Cable Setup &mdash; Kudos.tv</a></li>
+      </ul>
+    </div><!-- /tab-setup -->
+
+    <!-- ══ TAB: ASIO ══ -->
+    <div class="tab-panel" id="tab-asio">
+      <div class="sec-label">ASIO</div>
+      <div class="sec-title" data-ko="오디오 인터페이스 &mdash; 3 단계" data-en="Audio Interface &mdash; 3 Tiers">오디오 인터페이스 &mdash; 3 단계</div>
+      <div class="sec-desc" data-ko="ASIO = 저지연 드라이버. 노래 부를 때 본인 목소리 모니터링 = 10ms 이하 필요. 일반 Windows 드라이버로는 불가능." data-en="ASIO = low-latency driver. Monitoring your own voice while singing needs under 10ms. Not possible with standard Windows audio.">ASIO = 저지연 드라이버. 노래 모니터링 = 10ms 이하. 일반 Windows 드라이버 불가.</div>
+
+      <!-- Buffer math -->
+      <div class="flow-box" style="margin-bottom: 1.4rem;">
+        <span class="hi">Latency = Buffer / Sample Rate</span><br>
+        128 / 44,100 = <span class="hi">2.9ms</span> (one-way) &mdash; <span class="dim">사람 인지 안 됨 (10ms 이하 = perfect)</span><br>
+        Round-trip (UCX II): <span class="hi">~9.16ms</span> &mdash; <span class="dim">라이브 보컬 OK</span>
+      </div>
+
+      <!-- Buffer table -->
+      <div class="sec-label" data-ko="버퍼 선택 가이드" data-en="Buffer Guide">버퍼 선택 가이드</div>
+      <table class="buf-table" style="margin-bottom: 1.6rem;">
+        <thead>
+          <tr>
+            <th data-ko="목적" data-en="Use">목적</th>
+            <th data-ko="버퍼" data-en="Buffer">버퍼</th>
+            <th data-ko="지연" data-en="Latency">지연</th>
+            <th data-ko="상태" data-en="Status">상태</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-ko="라이브 보컬" data-en="Live vocal">라이브 보컬</td>
+            <td>64~128</td>
+            <td>1.5~3ms</td>
+            <td data-ko="최적" data-en="Optimal">최적</td>
+          </tr>
+          <tr class="hi-row">
+            <td data-ko="노래방 + 마이크 (Kenny seed)" data-en="Karaoke + Mic (Kenny seed)">노래방 + 마이크 (Kenny seed)</td>
+            <td>128</td>
+            <td>2.9ms</td>
+            <td data-ko="핵심" data-en="Core">핵심</td>
+          </tr>
+          <tr>
+            <td data-ko="OBS 스트리밍 동시" data-en="OBS streaming concurrent">OBS 스트리밍 동시</td>
+            <td>128~256</td>
+            <td>2.9~5.8ms</td>
+            <td data-ko="안전" data-en="Safe">안전</td>
+          </tr>
+          <tr>
+            <td data-ko="후작업 / 믹싱" data-en="Post / Mixing">후작업 / 믹싱</td>
+            <td>256~512</td>
+            <td>5.8~11.6ms</td>
+            <td data-ko="라이브 X" data-en="Not for live">라이브 X</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Tier 1 -->
+      <div class="tier-section">
+        <div class="tier-label" data-ko="Tier 1 &mdash; 입문 (~$200)" data-en="Tier 1 &mdash; Entry (~$200)">Tier 1 &mdash; 입문 (~$200)</div>
+        <div class="asio-grid">
+          <div class="asio-card">
+            <div class="asio-name">Focusrite Scarlett 2i2</div>
+            <div class="asio-price">~$180</div>
+            <div class="asio-short" data-ko="1st-time 표준 / Air mode preamp" data-en="First-timer standard / Air mode preamp">1st-time 표준 / Air mode preamp</div>
+            <span class="asio-pick" data-ko="MY PICK" data-en="MY PICK">MY PICK</span>
+            <div class="asio-spec" data-ko="생태계 + 드라이버 안정. 가족 선물 P0 자리. Air mode = condenser 마이크 따뜻하게." data-en="Ecosystem + stable drivers. Top family gift pick. Air mode = warm condenser sound.">생태계 + 드라이버 안정. 가족 선물 P0. Air mode = condenser 따뜻.</div>
+          </div>
+          <div class="asio-card">
+            <div class="asio-name">MOTU M2</div>
+            <div class="asio-price">~$199</div>
+            <div class="asio-short" data-ko="Sub-5ms latency / 노이즈 낮음" data-en="Sub-5ms latency / low noise">Sub-5ms latency / 노이즈 낮음</div>
+            <div class="asio-spec" data-ko="지연 우선 자리. 매우 낮은 노이즈 플로어. 드라이버 안정." data-en="Latency-first pick. Very low noise floor. Stable drivers.">지연 우선. 노이즈 낮음. 드라이버 안정.</div>
+          </div>
+          <div class="asio-card">
+            <div class="asio-name">Behringer UMC22</div>
+            <div class="asio-price">~$60</div>
+            <div class="asio-short" data-ko="진짜 입문 / 음질 양호" data-en="True entry-level / decent quality">진짜 입문 / 음질 양호</div>
+            <div class="asio-spec" data-ko='"써보고 결정" 자리. 가성비 최고. 업그레이드 전 체험용.' data-en='"Try before commit" slot. Best value. Good for testing before upgrading.'>써보고 결정. 가성비 최고.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 2 -->
+      <div class="tier-section">
+        <div class="tier-label" data-ko="Tier 2 &mdash; 중급 (~$300)" data-en="Tier 2 &mdash; Mid (~$300)">Tier 2 &mdash; 중급 (~$300)</div>
+        <div class="asio-grid">
+          <div class="asio-card">
+            <div class="asio-name">MOTU M4</div>
+            <div class="asio-price">~$269</div>
+            <div class="asio-short" data-ko="4 input / 가성비 / 가족 + 본인" data-en="4 inputs / great value / family + self">4 input / 가성비 / 가족 + 본인</div>
+            <span class="asio-pick" data-ko="MY PICK" data-en="MY PICK">MY PICK</span>
+            <div class="asio-spec" data-ko="4 채널 = 마이크 2개 + 라인 2개. 가족 합창 가능. 가성비 1위." data-en="4 channels = 2 mics + 2 lines. Family chorus possible. Top value mid-tier.">4 채널. 가족 합창 가능. 가성비 1위.</div>
+          </div>
+          <div class="asio-card">
+            <div class="asio-name">Audient iD14 MKII</div>
+            <div class="asio-price">~$329</div>
+            <div class="asio-short" data-ko="영국 boutique 사운드 / 보컬 따뜻" data-en="British boutique sound / warm vocal">영국 boutique 사운드 / 보컬 따뜻</div>
+            <div class="asio-spec" data-ko="클래스 A preamp. 보컬 따뜻함 최고. 영국 스튜디오 특유 색감." data-en="Class-A preamp. Warmest vocal tone in tier. British studio character.">Class-A preamp. 보컬 따뜻함 최고.</div>
+          </div>
+          <div class="asio-card">
+            <div class="asio-name">RME Babyface Pro FS</div>
+            <div class="asio-price">~$999</div>
+            <div class="asio-short" data-ko="Pro급 / TotalMix FX / 휴대용" data-en="Pro grade / TotalMix FX / portable">Pro급 / TotalMix FX / 휴대용</div>
+            <div class="asio-spec" data-ko="가격이 Tier 3 수준으로 올라간 제품. 노트북 자리에 최적. TotalMix = 강력 라우팅." data-en="Priced at Tier 3 level now. Best for laptop use. TotalMix = powerful routing.">가격 ↑ (Tier 3급). 노트북 자리. TotalMix 강력.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 3 -->
+      <div class="tier-section">
+        <div class="tier-label" data-ko="Tier 3 &mdash; Pro ($1000+)" data-en="Tier 3 &mdash; Pro ($1000+)">Tier 3 &mdash; Pro ($1000+)</div>
+        <div class="asio-grid">
+          <div class="asio-card">
+            <div class="asio-name">RME Fireface UCX II</div>
+            <div class="asio-price">~$1,549</div>
+            <div class="asio-short" data-ko="Kenny seed 계열 / 드라이버 신뢰도 1위" data-en="Kenny seed family / top driver reliability">Kenny seed 계열 / 드라이버 신뢰도 1위</div>
+            <span class="asio-pick" data-ko="MY PICK (Tier 3)" data-en="MY PICK (Tier 3)">MY PICK (Tier 3)</span>
+            <div class="asio-spec" data-ko="Kenny 가 현재 사용 중인 계열. Fireface USB = UCX 계열. 드라이버 업계 1위 안정성. 60 in/out." data-en="Same family as Kenny's current gear. Fireface USB = UCX family. #1 driver stability. 60 in/out.">Kenny 사용 계열. 드라이버 1위. 60 in/out.</div>
+          </div>
+          <div class="asio-card">
+            <div class="asio-name">UA Apollo Twin X</div>
+            <div class="asio-price">~$899</div>
+            <div class="asio-short" data-ko="UAD plugin DSP 내장 / 아날로그 에뮬" data-en="UAD plugin DSP onboard / analog emulation">UAD DSP 내장 / 아날로그 에뮬</div>
+            <div class="asio-spec" data-ko="UAD 전용 플러그인 = Neve / API / Lexicon 하드웨어 에뮬. DSP = CPU 부담 없음." data-en="UAD exclusive plugins = Neve / API / Lexicon hardware emulation. DSP = no CPU hit.">UAD 전용 플러그인. DSP = CPU 부담 없음.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-label" data-ko="출처" data-en="Sources">출처</div>
+      <ul class="sources-list">
+        <li><a href="https://gigperformer.com/audio-latency-buffer-size-and-sample-rate-explained" target="_blank" rel="noopener">Buffer / Sample Rate explained &mdash; Gig Performer</a></li>
+        <li><a href="https://www.sweetwater.com/sweetcare/articles/which-buffer-size-setting-should-i-use-in-my-daw/" target="_blank" rel="noopener">Buffer Size guide &mdash; Sweetwater</a></li>
+        <li><a href="https://forum.rme-audio.de/viewtopic.php?id=36957" target="_blank" rel="noopener">RME Fireface UCX II latencies &mdash; RME forum</a></li>
+      </ul>
+    </div><!-- /tab-asio -->
+
+    <!-- ══ TAB: MIC ══ -->
+    <div class="tab-panel" id="tab-mic">
+      <div class="sec-label" data-ko="마이크 선택" data-en="Microphone Selection">마이크 선택</div>
+      <div class="sec-title" data-ko="Top 5 마이크 &mdash; 스트리밍 자리" data-en="Top 5 Mics &mdash; Streaming Picks">Top 5 마이크 &mdash; 스트리밍 자리</div>
+      <div class="sec-desc" data-ko="Kenny seed = Fireface USB (pro preamp) 보유. Dynamic 마이크 추천 = 주변 소음 (키보드 / 가족) 차단. Condenser = 방음실 자리." data-en="Kenny has Fireface USB (pro preamp). Dynamic mic recommended = blocks ambient noise (keyboard / family). Condenser = soundproof room only.">Kenny seed = Fireface USB preamp 보유. Dynamic 추천 = 주변 소음 차단.</div>
+
+      <!-- Type compare -->
+      <table class="compare-table" style="margin-bottom: 1.4rem;">
+        <thead>
+          <tr>
+            <th data-ko="타입" data-en="Type">타입</th>
+            <th data-ko="강점" data-en="Strength">강점</th>
+            <th data-ko="약점" data-en="Weakness">약점</th>
+            <th data-ko="Kenny 자리" data-en="Kenny Slot">Kenny 자리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dynamic</strong></td>
+            <td data-ko="소음 차단 / gain OK with pro preamp" data-en="Noise rejection / gain OK with pro preamp">소음 차단 / pro preamp 있으면 OK</td>
+            <td data-ko="gain 많이 필요" data-en="Needs more gain">gain 많이 필요</td>
+            <td data-ko="스트리밍 ✓" data-en="Streaming ✓">스트리밍 ✓</td>
+          </tr>
+          <tr>
+            <td><strong>Condenser</strong></td>
+            <td data-ko="디테일 / 따뜻함" data-en="Detail / warmth">디테일 / 따뜻함</td>
+            <td data-ko="모든 소리 픽업 (에어컨 / 키보드)" data-en="Picks up everything (AC / keyboard)">모든 소리 픽업</td>
+            <td data-ko="방음실 자리만" data-en="Soundproof room only">방음실만</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="mic-grid">
+        <div class="mic-card">
+          <div class="mic-type-badge">Dynamic</div>
+          <div class="mic-name">Shure SM7B</div>
+          <div class="mic-price">~$399</div>
+          <div class="mic-desc" data-ko="스트리밍 표준 / Twitch 1위. Fireface preamp 있으면 Cloudlifter 불필요." data-en="Streaming standard / Twitch #1. No Cloudlifter needed with Fireface preamp.">스트리밍 표준 / Twitch 1위. Fireface 있으면 Cloudlifter 불필요.</div>
+          <span class="mic-pick" data-ko="MY PICK" data-en="MY PICK">MY PICK</span>
+        </div>
+        <div class="mic-card">
+          <div class="mic-type-badge">Dynamic</div>
+          <div class="mic-name">Shure SM7dB</div>
+          <div class="mic-price">~$499</div>
+          <div class="mic-desc" data-ko="SM7B + built-in preamp. Cloudlifter 필요 X. 가장 편한 setup." data-en="SM7B + built-in preamp. No Cloudlifter. Most convenient setup.">SM7B + preamp 내장. 가장 편한 setup.</div>
+        </div>
+        <div class="mic-card">
+          <div class="mic-type-badge">Dynamic</div>
+          <div class="mic-name">Beyerdynamic M70 Pro X</div>
+          <div class="mic-price">~$299</div>
+          <div class="mic-desc" data-ko="키보드 노이즈 차단 우수. 가성비 자리. Valorant + 게임 환경에 최적." data-en="Excellent keyboard noise rejection. Best value. Optimal for Valorant gaming environment.">키보드 노이즈 차단 우수. 가성비.</div>
+        </div>
+        <div class="mic-card">
+          <div class="mic-type-badge">Dynamic</div>
+          <div class="mic-name">Shure SM58</div>
+          <div class="mic-price">~$99</div>
+          <div class="mic-desc" data-ko="라이브 무대 / 견고. 노래방 자리. 처음 시작 동생 선물." data-en="Live stage / rugged. Karaoke slot. Good gift for a younger sibling starting out.">라이브 무대 / 견고. 노래방 입문.</div>
+        </div>
+        <div class="mic-card">
+          <div class="mic-type-badge">Condenser</div>
+          <div class="mic-name">Audio-Technica AT2020</div>
+          <div class="mic-price">~$99</div>
+          <div class="mic-desc" data-ko="입문 condenser 표준. 가족 선물 (방음 자리). 방 울림 없으면 OK." data-en="Entry condenser standard. Family gift (soundproof room). OK if no room reverb.">입문 condenser. 가족 선물 (방음 자리).</div>
+        </div>
+      </div>
+
+      <div class="sec-label" data-ko="출처" data-en="Sources">출처</div>
+      <ul class="sources-list">
+        <li><a href="https://www.podcastinsights.com/best-dynamic-microphones/" target="_blank" rel="noopener">Best Dynamic Microphones 2026 &mdash; Podcast Insights</a></li>
+        <li><a href="https://thegreatestsong.com/shure-sm7b-vs-sm58/" target="_blank" rel="noopener">Shure SM7B vs SM58 test</a></li>
+        <li><a href="https://www.musicradar.com/reviews/beyerdynamic-m-70-pro-x" target="_blank" rel="noopener">Beyerdynamic M70 Pro X &mdash; MusicRadar</a></li>
+      </ul>
+    </div><!-- /tab-mic -->
+
+    <!-- ══ TAB: PLUGIN ══ -->
+    <div class="tab-panel" id="tab-plugin">
+      <div class="sec-label" data-ko="VST 플러그인" data-en="VST Plugins">VST 플러그인</div>
+      <div class="sec-title" data-ko="5 카테고리 &times; 5 플러그인" data-en="5 Categories &times; 5 Plugins">5 카테고리 &times; 5 플러그인</div>
+      <div class="sec-desc" data-ko="카드 클릭 = 상세 모달. 무료 chain 으로 시작 권장. Black Friday 시즌에 유료 1개씩 추가." data-en="Click a card for detail modal. Start with the free chain. Add paid plugins one by one on Black Friday sales.">카드 클릭 = 상세 모달. 무료 chain 먼저. Black Friday 에 유료 추가.</div>
+
+      <!-- A: EQ -->
+      <div class="plugin-section">
+        <div class="plugin-cat-label" data-ko="A &mdash; EQ (이퀄라이저)" data-en="A &mdash; EQ (Equalizer)">A &mdash; EQ (이퀄라이저)</div>
+        <div class="plugin-grid">
+          <div class="plugin-card" onclick="openPlugin('TDR Nova','FREE','free','dynamic EQ + spectrum analyzer. 입문 1픽.','EQ + 다이나믹 이퀄라이징. 주파수 분석기 내장. Cantabile 무료 chain 핵심.','https://www.tokyodawn.net/tdr-nova/','MY PICK (무료)')">
+            <div class="pc-name">TDR Nova</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="Dynamic EQ + analyzer. 입문 1픽." data-en="Dynamic EQ + analyzer. Top free pick.">Dynamic EQ + analyzer. 입문 1픽.</div>
+            <span class="pc-pick" data-ko="MY PICK" data-en="MY PICK">MY PICK</span>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('Slick EQ','FREE','free','American / British / German / Soviet 모드. 캐릭터 있는 EQ.','4 개 국가별 모드. 각각 다른 색감. 무료 중 가장 재미있는 EQ.','https://www.tokyodawn.net/tdr-vos-slickeq/','무료 추천')">
+            <div class="pc-name">Slick EQ</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="American / British / Soviet 모드." data-en="American / British / Soviet modes.">American / British / Soviet 모드.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('FabFilter Pro-Q 3','~$179','paid','Pro 표준 EQ. GUI 최고. Dynamic EQ + Linear Phase 모드.','업계 표준 EQ. 직관적 GUI. Dynamic EQ 모드 내장. LP/MP 전환. 레퍼런스 믹스에도 사용.','https://www.fabfilter.com/products/pro-q-3-equalizer-plug-in','본격 픽')">
+            <div class="pc-name">FabFilter Pro-Q 3</div>
+            <div class="pc-price paid">~$179</div>
+            <div class="pc-desc" data-ko="Pro 표준. GUI 최고. Dynamic EQ." data-en="Pro standard. Best GUI. Dynamic EQ.">Pro 표준. GUI 최고. Dynamic EQ.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('Waves Q10','~$30 sale','paid','클래식 파라메트릭 EQ. Waves sale 시즌에 $30 이하.','10 band 파라메트릭. Waves 생태계 첫 진입용. 세일 자주 함 ($20~30).','https://www.waves.com/plugins/q10-equalizer','세일 픽')">
+            <div class="pc-name">Waves Q10</div>
+            <div class="pc-price paid">~$30 sale</div>
+            <div class="pc-desc" data-ko="클래식 파라메트릭. 세일 $30 이하." data-en="Classic parametric. Sale under $30.">클래식 파라메트릭. 세일 자주.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('iZotope Neutron EQ','bundle','paid','AI 어시스트 EQ. 마스킹 자동 감지.','AI 어시스트 = 자동으로 주파수 충돌 찾아줌. iZotope bundle 포함. 초심자 AI 가이드.','https://www.izotope.com/en/products/neutron.html','AI 픽')">
+            <div class="pc-name">iZotope Neutron</div>
+            <div class="pc-price paid">bundle</div>
+            <div class="pc-desc" data-ko="AI 어시스트. 마스킹 자동 감지." data-en="AI assist. Auto masking detection.">AI 어시스트. 마스킹 자동.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- B: Compressor -->
+      <div class="plugin-section">
+        <div class="plugin-cat-label" data-ko="B &mdash; Compressor (컴프레서)" data-en="B &mdash; Compressor">B &mdash; Compressor (컴프레서)</div>
+        <div class="plugin-grid">
+          <div class="plugin-card" onclick="openPlugin('Klanghelm DC1A','FREE','free','직관 컴프. 1 knob 스타일. 보컬 초심자 최적.','노브 2개로 조작. 원하는 소리 빠르게 잡음. Cantabile 무료 chain 핵심.','https://klanghelm.com/contents/products/DC1A.php','MY PICK (무료)')">
+            <div class="pc-name">Klanghelm DC1A</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="직관 / 1 knob 스타일. 초심자 최적." data-en="Intuitive / 1-knob style. Beginner best.">직관 / 1 knob. 초심자 최적.</div>
+            <span class="pc-pick" data-ko="MY PICK" data-en="MY PICK">MY PICK</span>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('TDR Kotelnikov','FREE','free','마스터링 grade 컴프. 투명한 소리.','정밀 파라미터. 투명한 압축. 마스터링 용도에도 OK. Wideband + M/S 모드.','https://www.tokyodawn.net/tdr-kotelnikov/','무료 고급')">
+            <div class="pc-name">TDR Kotelnikov</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="마스터링 grade. 투명한 소리." data-en="Mastering grade. Transparent sound.">마스터링 grade. 투명함.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('Waves CLA-2A','~$30 sale','paid','보컬 표준. LA-2A 광학 컴프 에뮬. 자연스러운 압축.','LA-2A 하드웨어 에뮬. 광학 = 자연스럽고 따뜻한 압축. 보컬 sweetener. Waves 세일 $20~30.','https://www.waves.com/plugins/cla-2a','보컬 픽')">
+            <div class="pc-name">Waves CLA-2A</div>
+            <div class="pc-price paid">~$30 sale</div>
+            <div class="pc-desc" data-ko="보컬 표준 (LA-2A 에뮬). 세일 $30." data-en="Vocal standard (LA-2A emul). Sale $30.">보컬 표준 LA-2A 에뮬.</div>
+            <span class="pc-pick" data-ko="MY PICK (유료)" data-en="MY PICK (paid)">MY PICK (유료)</span>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('Waves Renaissance Vox','~$30 sale','paid','1 stage vocal box. 심플 보컬 컴프.','보컬 전용 1 스테이지 컴프+게이트. 간단하게 쓰고 싶을 때 최적. 세일 자주.','https://www.waves.com/plugins/renaissance-vox','심플 픽')">
+            <div class="pc-name">Waves Ren Vox</div>
+            <div class="pc-price paid">~$30 sale</div>
+            <div class="pc-desc" data-ko="1 stage vocal box. 심플." data-en="1-stage vocal box. Simple.">1 stage vocal box. 심플.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('FabFilter Pro-C 2','~$179','paid','비주얼 + multi-mode 컴프. 업계 표준.','7 가지 압축 모드. 투명한 비주얼. Lookahead + 사이드체인. 업계 레퍼런스.','https://www.fabfilter.com/products/pro-c-2-compressor-plug-in','Pro 픽')">
+            <div class="pc-name">FabFilter Pro-C 2</div>
+            <div class="pc-price paid">~$179</div>
+            <div class="pc-desc" data-ko="비주얼 + multi-mode. 업계 표준." data-en="Visual + multi-mode. Industry standard.">비주얼 + multi-mode.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- C: Reverb -->
+      <div class="plugin-section">
+        <div class="plugin-cat-label" data-ko="C &mdash; Reverb (리버브 / 노래방 핵심)" data-en="C &mdash; Reverb (Karaoke Core)">C &mdash; Reverb (리버브 / 노래방 핵심)</div>
+        <div class="plugin-grid">
+          <div class="plugin-card" onclick="openPlugin('Valhalla Supermassive','FREE','free','ambient / long tail / 노래방 최적. 무료 최고.','모듈레이션 리버브. 긴 tail. 노래방 공간감에 최적. CPU 매우 낮음. 무료 최고 픽.','https://valhalladsp.com/shop/reverb/valhalla-supermassive/','MY PICK (무료)')">
+            <div class="pc-name">Valhalla Supermassive</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="ambient / long tail. 노래방 최적." data-en="Ambient / long tail. Karaoke best.">Ambient / long tail. 노래방 최적.</div>
+            <span class="pc-pick" data-ko="MY PICK" data-en="MY PICK">MY PICK</span>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('TAL Reverb-4','FREE','free','smooth / 자연스러운 리버브.','깨끗하고 자연스러운 리버브. 보컬 자리에 잘 맞음. 심플 UI.','https://tal-software.com/products/tal-reverb-4','무료 추천')">
+            <div class="pc-name">TAL Reverb-4</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="smooth / 자연스러움." data-en="Smooth / natural.">Smooth / 자연스러움.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('Dragonfly Reverb','FREE','free','Hall / Room / Plate 3 종 세트.','3 개 플러그인 = Hall + Room + Plate. 무료 버전. 다양한 공간감. 저 CPU.','https://github.com/michaelwillis/dragonfly-reverb','3종 세트')">
+            <div class="pc-name">Dragonfly Reverb</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="Hall / Room / Plate 3 종." data-en="Hall / Room / Plate 3 types.">Hall / Room / Plate 3 종.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('OrilRiver','FREE','free','low CPU / classic 리버브.','매우 낮은 CPU 부하. 클래식 리버브 알고리즘. 오래된 플러그인이지만 여전히 OK.','https://www.kvraudio.com/product/orilriver-by-denis-tihanov','low CPU')">
+            <div class="pc-name">OrilRiver</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="low CPU / classic." data-en="Low CPU / classic.">Low CPU / classic.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('Valhalla VintageVerb','~$50','paid','Pro 자리 1픽. 12 알고리즘. 80s~90s 색감.','12 개 리버브 알고리즘. 80s Bright / 80s Dark / Noisy 등. 노래방 + 라이브 최고. $50 = 최고 가성비 유료.','https://valhalladsp.com/shop/reverb/valhalla-vintage-verb/','MY PICK (유료)')">
+            <div class="pc-name">Valhalla VintageVerb</div>
+            <div class="pc-price paid">~$50</div>
+            <div class="pc-desc" data-ko="12 알고리즘. 80s~90s 색감." data-en="12 algorithms. 80s~90s character.">12 알고리즘. 80s~90s.</div>
+            <span class="pc-pick" data-ko="MY PICK (유료)" data-en="MY PICK (paid)">MY PICK (유료)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- D: Pitch -->
+      <div class="plugin-section">
+        <div class="plugin-cat-label" data-ko="D &mdash; Pitch / Autotune" data-en="D &mdash; Pitch / Autotune">D &mdash; Pitch / Autotune</div>
+        <div class="plugin-grid">
+          <div class="plugin-card" onclick="openPlugin('Graillon 2','FREE','free','실시간 autotune basic. 무료 입문.','기본 pitch correction + pitch shift. 실시간 OK. 무료 tier 충분히 쓸 만함.','https://www.auburnsounds.com/products/Graillon.html','MY PICK (무료)')">
+            <div class="pc-name">Graillon 2</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="실시간 autotune basic." data-en="Real-time autotune basic.">실시간 autotune basic.</div>
+            <span class="pc-pick" data-ko="MY PICK" data-en="MY PICK">MY PICK</span>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('MAutoPitch','FREE','free','clean pitch correction. CPU 낮음.','정확한 pitch correction. 투명한 처리. MeldaProduction 무료 번들 포함.','https://www.meldaproduction.com/MAutoPitch','무료 깔끔')">
+            <div class="pc-name">MAutoPitch</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="clean correction. CPU 낮음." data-en="Clean correction. Low CPU.">Clean correction. Low CPU.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('Antares Auto-Tune EFX+','~$99','paid','T-Pain 이펙트 자리. 노래방 개성.','Auto-Tune 브랜드. EFX+ = 이펙트 버전. T-Pain 스타일 pitch snap. 노래방 재미 자리.','https://www.antarestech.com/product/auto-tune-efx/','이펙트 픽')">
+            <div class="pc-name">Auto-Tune EFX+</div>
+            <div class="pc-price paid">~$99</div>
+            <div class="pc-desc" data-ko="T-Pain 이펙트 자리." data-en="T-Pain effect slot.">T-Pain 이펙트.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('Waves Tune Real-Time','~$30 sale','paid','라이브 보컬 pitch 교정. 실시간 최적.','실시간 pitch correction. 라이브 보컬 자리 최고. Natural 모드 = 자연스럽게. 세일 $30.','https://www.waves.com/plugins/waves-tune-real-time','라이브 픽')">
+            <div class="pc-name">Waves Tune RT</div>
+            <div class="pc-price paid">~$30 sale</div>
+            <div class="pc-desc" data-ko="라이브 pitch 교정. 세일 $30." data-en="Live pitch correction. Sale $30.">라이브 pitch 교정. 세일 $30.</div>
+            <span class="pc-pick" data-ko="MY PICK (유료)" data-en="MY PICK (paid)">MY PICK (유료)</span>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('Antares Auto-Tune Pro X','~$399','paid','Pro 최고 tier. 스튜디오 표준.','Auto-Tune 최상위 버전. 모든 기능. 스튜디오 표준. 가격 높음 = Black Friday 픽.','https://www.antarestech.com/product/auto-tune-pro/','Pro 최고')">
+            <div class="pc-name">Auto-Tune Pro X</div>
+            <div class="pc-price paid">~$399</div>
+            <div class="pc-desc" data-ko="Pro 최고. 스튜디오 표준." data-en="Pro max. Studio standard.">Pro 최고. 스튜디오 표준.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- E: Jam Effect -->
+      <div class="plugin-section">
+        <div class="plugin-cat-label" data-ko="E &mdash; 잼인이 / 이펙트 (보컬 특수효과)" data-en="E &mdash; Jam / Effect (Vocal FX)">E &mdash; 잼인이 / 이펙트 (보컬 특수효과)</div>
+        <div class="plugin-grid">
+          <div class="plugin-card" onclick="openPlugin('Soundtoys Little AlterBoy','FREE','free','pitch / formant 변조. 무료 gem.','무료 버전. Pitch shift + Formant shift. 목소리 캐릭터 변조. Kenny seed 잼인이 자리.','https://www.soundtoys.com/product/little-alterboy/','MY PICK (무료)')">
+            <div class="pc-name">Little AlterBoy</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="pitch / formant 변조." data-en="Pitch / formant modulation.">Pitch / formant 변조.</div>
+            <span class="pc-pick" data-ko="MY PICK" data-en="MY PICK">MY PICK</span>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('iZotope Vocal Doubler','FREE','free','더블 트래킹 자동. 풍성한 보컬.','자동 더블 트래킹. 코러스 느낌. 노래방 풍성하게. iZotope 무료 제공.','https://www.izotope.com/en/products/vocal-doubler.html','더블 픽')">
+            <div class="pc-name">iZotope Vocal Doubler</div>
+            <div class="pc-price free">FREE</div>
+            <div class="pc-desc" data-ko="자동 더블 트래킹." data-en="Auto double tracking.">자동 더블 트래킹.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('iZotope VocalSynth 2','~$199','paid','vocoder / talkbox / polyvox. 창의적 보컬.','5 엔진: Compuvox + Polyvox + Vocoder + BIOVOX + Talkbox. 보컬 창의 표현 최고.','https://www.izotope.com/en/products/vocalsynth.html','창의 픽')">
+            <div class="pc-name">VocalSynth 2</div>
+            <div class="pc-price paid">~$199</div>
+            <div class="pc-desc" data-ko="vocoder / talkbox / polyvox." data-en="Vocoder / talkbox / polyvox.">Vocoder / talkbox / polyvox.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('UJAM Voxcraft','~$149','paid','보컬 manipulation multi-FX.','다양한 보컬 이펙트 preset. Pitch shift + Reverb + Delay + Modulation 통합. 원 스톱.','https://www.ujam.com/beatmaker/voxcraft/','원스톱 픽')">
+            <div class="pc-name">UJAM Voxcraft</div>
+            <div class="pc-price paid">~$149</div>
+            <div class="pc-desc" data-ko="보컬 manipulation multi-FX." data-en="Vocal manipulation multi-FX.">보컬 manipulation.</div>
+          </div>
+          <div class="plugin-card" onclick="openPlugin('Soundtoys 5 Bundle','~$499','paid','EchoBoy / Decapitator / Crystallizer 등 전체 세트.','Soundtoys 전 제품 번들. EchoBoy (딜레이) + Decapitator (새츄레이션) + Crystallizer (피치 에코) 등. 한 번 사면 영원.','https://www.soundtoys.com/product/soundtoys-5/','최고 번들')">
+            <div class="pc-name">Soundtoys 5 Bundle</div>
+            <div class="pc-price paid">~$499</div>
+            <div class="pc-desc" data-ko="EchoBoy / Decapitator / Crystallizer." data-en="EchoBoy / Decapitator / Crystallizer.">EchoBoy / Decapitator...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Free vs Paid summary -->
+      <div class="sec-label" style="margin-top: 0.5rem;" data-ko="무료 vs 유료 요약" data-en="Free vs Paid Summary">무료 vs 유료 요약</div>
+      <table class="fvp-table">
+        <thead>
+          <tr>
+            <th data-ko="카테고리" data-en="Category">카테고리</th>
+            <th data-ko="무료 chain" data-en="Free chain">무료 chain</th>
+            <th data-ko="유료 chain" data-en="Paid chain">유료 chain</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>EQ</td>
+            <td class="free-col">TDR Nova</td>
+            <td class="paid-col">FabFilter Pro-Q 3</td>
+          </tr>
+          <tr>
+            <td data-ko="컴프" data-en="Comp">컴프</td>
+            <td class="free-col">Klanghelm DC1A</td>
+            <td class="paid-col">Waves CLA-2A</td>
+          </tr>
+          <tr>
+            <td>Reverb</td>
+            <td class="free-col">Valhalla Supermassive</td>
+            <td class="paid-col">Valhalla VintageVerb</td>
+          </tr>
+          <tr>
+            <td>Pitch</td>
+            <td class="free-col">Graillon 2</td>
+            <td class="paid-col">Waves Tune RT</td>
+          </tr>
+          <tr>
+            <td data-ko="잼 / FX" data-en="Jam / FX">잼 / FX</td>
+            <td class="free-col">Little AlterBoy</td>
+            <td class="paid-col">Soundtoys 5 Bundle</td>
+          </tr>
+          <tr class="total-row">
+            <td data-ko="합계" data-en="Total">합계</td>
+            <td class="free-col">$0</td>
+            <td class="paid-col">~$700~1,000</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="sec-label" data-ko="출처" data-en="Sources">출처</div>
+      <ul class="sources-list">
+        <li><a href="https://blog.landr.com/best-free-vocal-vst-plugins/" target="_blank" rel="noopener">LANDR &mdash; 18 Free Vocal VST Plugins 2026</a></li>
+        <li><a href="https://blog.landr.com/free-reverb-vst-plugins/" target="_blank" rel="noopener">LANDR &mdash; 15 Best Free Reverb VST Plugins 2026</a></li>
+        <li><a href="https://www.musicguymixing.com/vocal-chain/" target="_blank" rel="noopener">Music Guy Mixing &mdash; Vocal Chain Order</a></li>
+        <li><a href="https://splice.com/blog/vocal-chain-best-plugins/" target="_blank" rel="noopener">Splice &mdash; 6 Best Free Vocal Chain Plugins</a></li>
+      </ul>
+    </div><!-- /tab-plugin -->
+
+    <!-- ══ TAB: MIX CHAIN ══ -->
+    <div class="tab-panel" id="tab-mix">
+      <div class="sec-label" data-ko="믹스 체인" data-en="Mix Chain">믹스 체인</div>
+      <div class="sec-title" data-ko="보컬 신호 흐름 시각화" data-en="Vocal Signal Flow Visualization">보컬 신호 흐름 시각화</div>
+      <div class="sec-desc" data-ko="Cantabile track 안 플러그인 순서. 순서 바꾸면 소리 달라짐. 아래 = 표준 자리." data-en="Plugin order within Cantabile track. Changing the order changes the sound. Below = standard positions.">Cantabile track 안 플러그인 순서. 순서 = 소리 결과 달라짐.</div>
+
+      <!-- Vocal chain nodes -->
+      <div class="chain-flow">
+        <div class="chain-node">
+          <span class="cn-num" data-ko="입력" data-en="Input">입력</span>
+          <div class="cn-label" data-ko="마이크" data-en="Mic">마이크</div>
+          <div class="cn-plugin" data-ko="SM7B / Fireface" data-en="SM7B / Fireface">SM7B / Fireface</div>
+        </div>
+        <div class="chain-node">
+          <span class="cn-num">01 EQ</span>
+          <div class="cn-label">EQ</div>
+          <div class="cn-plugin">TDR Nova<br>Pro-Q 3</div>
+        </div>
+        <div class="chain-node">
+          <span class="cn-num">02 COMP</span>
+          <div class="cn-label" data-ko="컴프레서" data-en="Compressor">컴프레서</div>
+          <div class="cn-plugin">DC1A<br>CLA-2A</div>
+        </div>
+        <div class="chain-node">
+          <span class="cn-num">03 PITCH</span>
+          <div class="cn-label" data-ko="피치" data-en="Pitch">피치</div>
+          <div class="cn-plugin">Graillon 2<br>Waves Tune</div>
+        </div>
+        <div class="chain-node">
+          <span class="cn-num">04 FX</span>
+          <div class="cn-label" data-ko="잼 이펙트" data-en="Jam Effect">잼 이펙트</div>
+          <div class="cn-plugin">Little AlterBoy<br>VocalSynth</div>
+        </div>
+        <div class="chain-node">
+          <span class="cn-num">05 REV</span>
+          <div class="cn-label">Reverb</div>
+          <div class="cn-plugin">Supermassive<br>VintageVerb</div>
+        </div>
+        <div class="chain-node">
+          <span class="cn-num" data-ko="출력" data-en="Output">출력</span>
+          <div class="cn-label">VB-CABLE</div>
+          <div class="cn-plugin" data-ko="OBS 로" data-en="to OBS">OBS 로</div>
+        </div>
+      </div>
+
+      <!-- Tips -->
+      <div class="mix-tip">
+        <strong data-ko="순서 핵심:" data-en="Order key:">순서 핵심:</strong>
+        <span data-ko=" EQ 먼저 → 불필요 주파수 제거 → Comp → 균일하게 → Reverb 마지막. Reverb 먼저 넣으면 잡음도 공간화됨." data-en=" EQ first → remove unwanted frequencies → Comp → level out → Reverb last. If Reverb goes first, noise gets spatialized too."> EQ 먼저 → 잡음 제거 → Comp → 균일화 → Reverb 마지막. Reverb 먼저 = 잡음도 공간화 됨.</span>
+      </div>
+      <div class="mix-tip">
+        <strong data-ko="Snapshot 활용:" data-en="Snapshot use:">Snapshot 활용:</strong>
+        <span data-ko=" 노래방 setup 저장 = Snapshot 1. Valorant-only 자리 = Snapshot 2. 버튼 하나로 전환." data-en=" Save karaoke setup = Snapshot 1. Valorant-only = Snapshot 2. One-button switch."> 노래방 = Snapshot 1 / Valorant only = Snapshot 2. 버튼 하나 전환.</span>
+      </div>
+
+      <!-- Full OBS flow -->
+      <div class="obs-chain-wrap">
+        <div class="obs-chain-label" data-ko="전체 스트리밍 흐름" data-en="Full Streaming Flow">전체 스트리밍 흐름</div>
+        <div class="obs-row">
+          <div class="obs-node" data-ko="마이크" data-en="Mic">마이크</div>
+          <div class="obs-arrow">&#8594;</div>
+          <div class="obs-node">Fireface ASIO</div>
+          <div class="obs-arrow">&#8594;</div>
+          <div class="obs-node">Cantabile</div>
+          <div class="obs-arrow">&#8594;</div>
+          <div class="obs-node">VST Chain</div>
+          <div class="obs-arrow">&#8594;</div>
+          <div class="obs-node">VB-CABLE</div>
+          <div class="obs-arrow">&#8594;</div>
+          <div class="obs-node dim">OBS</div>
+          <div class="obs-arrow">&#8594;</div>
+          <div class="obs-node dim" data-ko="YouTube/Twitch" data-en="YouTube/Twitch">YouTube / Twitch</div>
+        </div>
+        <div class="obs-row" style="margin-top: 0.4rem;">
+          <div class="obs-node dim" data-ko="Valorant 게임 오디오" data-en="Valorant game audio">Valorant 오디오</div>
+          <div class="obs-arrow">&#8594;</div>
+          <div class="obs-node dim">OBS</div>
+          <div class="obs-arrow" style="visibility: hidden;">&#8594;</div>
+          <div class="obs-node dim" data-ko="(합산)" data-en="(mixed)">(합산)</div>
+        </div>
+        <div class="obs-row" style="margin-top: 0.4rem;">
+          <div class="obs-node dim" data-ko="노래방 mp3" data-en="Karaoke mp3">노래방 mp3</div>
+          <div class="obs-arrow">&#8594;</div>
+          <div class="obs-node">Cantabile track</div>
+          <div class="obs-arrow">&#8594;</div>
+          <div class="obs-node">VB-CABLE</div>
+          <div class="obs-arrow">&#8594;</div>
+          <div class="obs-node dim">OBS</div>
+        </div>
+      </div>
+
+      <div class="sec-label" data-ko="Korean Streamer 패턴" data-en="Korean Streamer Pattern">Korean Streamer 패턴</div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th data-ko="패턴" data-en="Pattern">패턴</th>
+            <th data-ko="자리" data-en="Slot">자리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-ko="아프리카TV BJ &mdash; 노래 채널" data-en="AfreecaTV BJ &mdash; Singing channel">아프리카TV BJ 노래 채널</td>
+            <td data-ko="SM7B + RME + Cantabile / VoiceMeeter" data-en="SM7B + RME + Cantabile / VoiceMeeter">SM7B + RME + Cantabile</td>
+          </tr>
+          <tr>
+            <td data-ko="트위치 게임 streamer" data-en="Twitch game streamer">트위치 게임 streamer</td>
+            <td data-ko="SM7B 또는 Beyerdynamic M70 Pro X" data-en="SM7B or Beyerdynamic M70 Pro X">SM7B 또는 M70 Pro X</td>
+          </tr>
+          <tr>
+            <td data-ko="유튜브 노래 cover" data-en="YouTube song cover">유튜브 노래 cover</td>
+            <td data-ko="AT2020 condenser + OBS 직녹음" data-en="AT2020 condenser + OBS direct">AT2020 + OBS 직녹음</td>
+          </tr>
+          <tr>
+            <td data-ko="Kenny goal (노래 + Valorant + 가족)" data-en="Kenny goal (song + Valorant + family)">Kenny goal (노래 + Valorant + 가족)</td>
+            <td data-ko="Cantabile + SM7B + Valhalla Supermassive" data-en="Cantabile + SM7B + Valhalla Supermassive">Cantabile + SM7B + Valhalla Supermassive</td>
+          </tr>
+        </tbody>
+      </table>
+    </div><!-- /tab-mix -->
+
+  </main>
+</div><!-- /.layout -->
+
+<!-- FOOTER -->
+<footer>
+  <div data-ko="Newton School &middot; Traci Baek (소연) &middot; Cantabile Vocal Setup &middot; 2026-05-16" data-en="Newton School &middot; Traci Baek (Soyeon) &middot; Cantabile Vocal Setup &middot; 2026-05-16">Newton School &middot; Traci Baek (소연) &middot; Cantabile Vocal Setup &middot; 2026-05-16</div>
+  <div style="margin-top: 5px;">
+    <a href="../index.html" data-ko="&larr; 소연 포탈" data-en="&larr; Soyeon Portal">&larr; 소연 포탈</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://www.cantabilesoftware.com/" target="_blank" rel="noopener">cantabilesoftware.com</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://valhalladsp.com/" target="_blank" rel="noopener">valhalladsp.com</a>
+  </div>
+</footer>
+
+<!-- PLUGIN DETAIL MODAL -->
+<div class="modal-overlay" id="pluginModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="pmTitle"></div>
+      <button class="modal-close" onclick="closePlugin()" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body" id="pmBody"></div>
+  </div>
+</div>
+
+<script>
+  /* ── THEME ── */
+  (function() {
+    const saved = localStorage.getItem('traci-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
+  })();
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('theme-toggle').textContent = isDark ? 'Dark' : 'Light';
+    localStorage.setItem('traci-theme', next);
+  }
+
+  /* ── LANGUAGE ── */
+  let lang = localStorage.getItem('traci-lang') || 'ko';
+  function applyLang() {
+    document.querySelectorAll('[data-ko]').forEach(el => {
+      el.innerHTML = el.getAttribute('data-' + lang);
+    });
+    document.getElementById('lang-toggle').textContent = lang === 'ko' ? 'EN' : 'KO';
+  }
+  function toggleLang() {
+    lang = lang === 'ko' ? 'en' : 'ko';
+    localStorage.setItem('traci-lang', lang);
+    applyLang();
+  }
+  if (lang === 'en') applyLang();
+
+  /* ── TABS ── */
+  function switchTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  /* ── PLUGIN MODAL ── */
+  function openPlugin(name, price, priceType, short, detail, url, pick) {
+    document.getElementById('pmTitle').textContent = name;
+    const priceClass = priceType === 'free' ? 'free-col' : 'paid-col';
+    document.getElementById('pmBody').innerHTML = `
+      <div class="m-row"><span class="m-key">Price</span><span class="m-val <span class="${priceClass}">${price}</span></span></div>
+      <div class="m-row"><span class="m-key">Summary</span><span class="m-val">${short}</span></div>
+      <div class="m-row"><span class="m-key">Detail</span><span class="m-val">${detail}</span></div>
+      <div class="m-row"><span class="m-key">Link</span><span class="m-val"><a href="${url}" target="_blank" rel="noopener">${url}</a></span></div>
+      ${pick ? `<div class="m-pick-block"><strong>${pick}</strong></div>` : ''}
+    `;
+    document.getElementById('pluginModal').classList.add('open');
+    document.body.classList.add('no-scroll');
+  }
+  function closePlugin() {
+    document.getElementById('pluginModal').classList.remove('open');
+    document.body.classList.remove('no-scroll');
+  }
+  document.getElementById('pluginModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('pluginModal')) closePlugin();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlugin(); });
+</script>
+</body>
+</html>
