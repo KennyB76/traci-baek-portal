@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<!--
+  Traci Baek (Soyeon) -- Valorant Gift & Gear Interactive Guide
+  Newton School / 2026-05-16
+  Theme: warm amber/coral
+  Source: 2026-05-16_valorant-gift-for-soyeon.md + 2026-05-16_valorant-gear-soyeon.md
+  Features: card grid, click -> modal popup, light/dark toggle, ko/en toggle
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valorant Gift &amp; Gear &mdash; 소연 가이드</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --amber:      #f59e0b;
+    --amber-soft: #451a03;
+    --amber-deep: #fde68a;
+    --coral:      #fb7185;
+    --coral-soft: #4c0519;
+    --glow:       rgba(245,158,11,0.2);
+    --ink:        #fef3c7;
+    --ink-soft:   #d97706;
+    --paper:      #1a1208;
+    --bg:         #0c0a04;
+    --line:       #2d1f06;
+    --card-bg:    #1f1508;
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans:  'Inter', system-ui, sans-serif;
+    --radius: 12px;
+  }
+  [data-theme="light"] {
+    --amber:      #d97706;
+    --amber-soft: #fef3c7;
+    --amber-deep: #92400e;
+    --coral:      #f43f5e;
+    --coral-soft: #fce7f3;
+    --glow:       rgba(217,119,6,0.14);
+    --ink:        #451a03;
+    --ink-soft:   #78350f;
+    --paper:      #fffbeb;
+    --bg:         #fefce8;
+    --line:       #fde68a;
+    --card-bg:    #fffbeb;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.65;
+    transition: background 0.2s, color 0.2s;
+  }
+  body.no-scroll { overflow: hidden; }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem; height: 50px;
+  }
+  .nav-back {
+    font-size: 0.78rem; font-weight: 600;
+    color: var(--amber); text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: opacity 0.15s;
+  }
+  .nav-back:hover { opacity: 0.75; }
+  .nav-title {
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--ink-soft); letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .nav-actions { display: flex; gap: 0.5rem; }
+  .btn-sm {
+    background: var(--amber-soft); border: 1px solid var(--line);
+    color: var(--amber); border-radius: 6px;
+    padding: 0.26rem 0.6rem; font-size: 0.73rem;
+    font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-sm:hover { background: var(--glow); border-color: var(--amber); }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 48px 24px 36px;
+    border-bottom: 3px double var(--amber);
+    background: var(--paper);
+  }
+  .hero-label {
+    font-size: 10px; letter-spacing: 0.45em;
+    text-transform: uppercase; color: var(--amber);
+    font-weight: 700; margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 6vw, 2.8rem);
+    font-weight: 700; line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .hero h1 span { color: var(--amber); }
+  .hero .sub {
+    font-size: 0.88rem; color: var(--ink-soft);
+    max-width: 520px; margin: 0 auto 1.25rem;
+    line-height: 1.75;
+  }
+
+  /* ── TAB FILTER ── */
+  .tab-row {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; padding: 1.25rem 1.5rem;
+    background: var(--paper); border-bottom: 1px solid var(--line);
+    position: sticky; top: 50px; z-index: 100;
+  }
+  .tab {
+    background: var(--card-bg); border: 1px solid var(--line);
+    color: var(--ink-soft); border-radius: 20px;
+    padding: 0.28rem 0.9rem; font-size: 0.78rem;
+    font-weight: 600; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .tab:hover, .tab.active {
+    background: var(--amber); color: #1a1208;
+    border-color: var(--amber);
+  }
+
+  /* ── GRID ── */
+  .main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-icon { font-size: 1.4rem; }
+  .section-title {
+    font-family: var(--serif);
+    font-size: 1.2rem; font-weight: 700; color: var(--amber);
+  }
+  .section-count {
+    font-size: 0.72rem; color: var(--ink-soft);
+    background: var(--amber-soft); border: 1px solid var(--line);
+    border-radius: 10px; padding: 1px 7px;
+  }
+  [data-theme="light"] .section-count { background: var(--amber-soft); }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 540px) { .card-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--amber);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    position: relative;
+  }
+  .card:hover {
+    border-color: var(--amber);
+    box-shadow: 0 6px 20px var(--glow);
+    transform: translateY(-3px);
+  }
+  .card.coral { border-top-color: var(--coral); }
+  .card.coral:hover { border-color: var(--coral); }
+
+  .card-cat {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 8px;
+  }
+  .card.coral .card-cat { color: var(--coral); }
+
+  .card-name {
+    font-family: var(--serif);
+    font-size: 1rem; font-weight: 700;
+    line-height: 1.3; margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .card-price {
+    font-size: 0.82rem; font-weight: 700;
+    color: var(--amber); margin-bottom: 6px;
+  }
+  .card.coral .card-price { color: var(--coral); }
+  .card-note {
+    font-size: 0.75rem; color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .card-badge {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 9px; font-weight: 700;
+    background: var(--amber); color: #1a1208;
+    border-radius: 4px; padding: 2px 6px;
+    letter-spacing: 0.08em;
+  }
+  .card.coral .card-badge { background: var(--coral); }
+  .card-arrow {
+    position: absolute; bottom: 12px; right: 14px;
+    color: var(--amber); font-size: 14px;
+    font-weight: 700; opacity: 0.6;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .card:hover .card-arrow { transform: translateX(3px); opacity: 1; }
+  .card.coral .card-arrow { color: var(--coral); }
+
+  .hidden { display: none !important; }
+
+  /* ── KENNY PICKS BOX ── */
+  .picks-box {
+    background: var(--card-bg);
+    border: 1px solid var(--amber);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin: 2rem 0 0;
+  }
+  .picks-label {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 0.75rem;
+  }
+  .picks-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem;
+  }
+  .pick-item {
+    background: var(--amber-soft);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--line);
+  }
+  [data-theme="light"] .pick-item { background: var(--amber-soft); border-color: var(--amber); }
+  .pick-rank { font-size: 10px; color: var(--amber); font-weight: 700; margin-bottom: 4px; }
+  .pick-name { font-size: 0.85rem; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+  .pick-why { font-size: 0.75rem; color: var(--ink-soft); line-height: 1.5; }
+
+  /* ── MODAL ── */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(10,8,4,0.88);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; padding: 1.5rem;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--paper);
+    border-radius: 14px;
+    max-width: 580px; width: 100%;
+    max-height: 88vh; overflow-y: auto;
+    border: 1px solid var(--amber);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  }
+  .modal-head {
+    position: sticky; top: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    padding: 1rem 1.25rem;
+    display: flex; align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .modal-cat-badge {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--amber); display: block;
+    margin-bottom: 4px;
+  }
+  .modal-name {
+    font-family: var(--serif);
+    font-size: 1.25rem; font-weight: 700;
+    line-height: 1.25; color: var(--ink);
+  }
+  .modal-x {
+    background: transparent; border: none;
+    font-size: 22px; cursor: pointer;
+    color: var(--ink-soft); flex-shrink: 0;
+    line-height: 1; transition: color 0.15s;
+  }
+  .modal-x:hover { color: var(--amber); }
+  .modal-body { padding: 1.25rem 1.5rem; }
+  .modal-price {
+    font-size: 1.3rem; font-weight: 700;
+    color: var(--amber); margin-bottom: 0.75rem;
+  }
+  .modal-desc {
+    font-size: 0.88rem; line-height: 1.75;
+    color: var(--ink-soft); margin-bottom: 1rem;
+  }
+  .modal-tags {
+    display: flex; flex-wrap: wrap; gap: 0.4rem;
+    margin-bottom: 1.25rem;
+  }
+  .modal-tag {
+    background: var(--amber-soft); border: 1px solid var(--line);
+    color: var(--amber); border-radius: 20px;
+    padding: 0.2rem 0.65rem; font-size: 0.72rem;
+    font-weight: 600;
+  }
+  [data-theme="light"] .modal-tag { background: var(--amber-soft); }
+  .modal-link {
+    display: inline-block;
+    background: var(--amber); color: #1a1208;
+    text-decoration: none; font-weight: 700;
+    font-size: 0.82rem; border-radius: 8px;
+    padding: 0.55rem 1.25rem;
+    transition: opacity 0.15s;
+    margin-right: 0.5rem; margin-bottom: 0.5rem;
+  }
+  .modal-link:hover { opacity: 0.85; }
+  .modal-link.secondary {
+    background: var(--card-bg);
+    color: var(--amber);
+    border: 1px solid var(--amber);
+  }
+  .modal-note {
+    margin-top: 1rem;
+    font-size: 0.78rem; color: var(--ink-soft);
+    background: var(--card-bg);
+    border-left: 3px solid var(--amber);
+    border-radius: 6px;
+    padding: 0.65rem 1rem;
+    line-height: 1.65;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 2rem;
+    font-size: 11px; color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+    margin-top: 2rem;
+    background: var(--paper);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-back" href="../index.html" data-ko="&larr; 소연 포탈" data-en="&larr; Soyeon Portal">&larr; 소연 포탈</a>
+  <div class="nav-title" data-ko="Valorant Gift &amp; Gear" data-en="Valorant Gift &amp; Gear">Valorant Gift &amp; Gear</div>
+  <div class="nav-actions">
+    <button class="btn-sm" id="lang-toggle" onclick="toggleLang()">EN</button>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Light</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label" data-ko="소연 전용 가이드 &middot; 2026-05-16" data-en="Soyeon Guide &middot; 2026-05-16">소연 전용 가이드 &middot; 2026-05-16</div>
+  <h1><span data-ko="Valorant" data-en="Valorant">Valorant</span> <span style="color:var(--ink)" data-ko="Gift &amp; Gear" data-en="Gift &amp; Gear">Gift &amp; Gear</span></h1>
+  <p class="sub" data-ko="Kenny 가 소연을 위해 조사한 선물 + 장비 가이드. 카드를 클릭하면 상세 정보 + 구매 링크가 나옵니다. Kenny 결재 자리 (예산 / 최종 픽) 는 별도." data-en="Gift + gear guide Kenny researched for Soyeon. Click any card for details and buy links. Kenny's final decision (budget / pick) is separate.">Kenny 가 소연을 위해 조사한 선물 + 장비 가이드. 카드를 클릭하면 상세 정보 + 구매 링크가 나옵니다. Kenny 결재 자리 (예산 / 최종 픽) 는 별도.</p>
+</div>
+
+<!-- TAB FILTER -->
+<div class="tab-row">
+  <button class="tab active" data-filter="all" onclick="filterTab(this,'all')" data-ko="전체" data-en="All">전체</button>
+  <button class="tab" data-filter="apparel" onclick="filterTab(this,'apparel')" data-ko="A. 의류" data-en="A. Apparel">A. 의류</button>
+  <button class="tab" data-filter="plush" onclick="filterTab(this,'plush')" data-ko="B. 플러시" data-en="B. Plush">B. 플러시</button>
+  <button class="tab" data-filter="vp" onclick="filterTab(this,'vp')" data-ko="D. VP 카드" data-en="D. VP Card">D. VP 카드</button>
+  <button class="tab" data-filter="collectibles" onclick="filterTab(this,'collectibles')" data-ko="E. 피규어" data-en="E. Figures">E. 피규어</button>
+  <button class="tab" data-filter="riot" onclick="filterTab(this,'riot')" data-ko="F. Riot 한정" data-en="F. Riot Ltd">F. Riot 한정</button>
+  <button class="tab" data-filter="mouse" onclick="filterTab(this,'mouse')" data-ko="마우스" data-en="Mouse">마우스</button>
+  <button class="tab" data-filter="keyboard" onclick="filterTab(this,'keyboard')" data-ko="키보드" data-en="Keyboard">키보드</button>
+  <button class="tab" data-filter="pad" onclick="filterTab(this,'pad')" data-ko="마우스패드" data-en="Mousepad">마우스패드</button>
+</div>
+
+<div class="main">
+
+  <!-- ── GIFT SECTION A: Apparel ── -->
+  <div class="section-header" data-section="apparel">
+    <div class="section-icon">&#128084;</div>
+    <div class="section-title" data-ko="A. 의류 (Apparel)" data-en="A. Apparel">A. 의류 (Apparel)</div>
+    <div class="section-count">3</div>
+  </div>
+  <div class="card-grid" data-section="apparel">
+
+    <div class="card" data-cat="apparel" onclick="openModal('a1')">
+      <div class="card-cat" data-ko="의류" data-en="Apparel">의류</div>
+      <div class="card-name">VALORANT PRTCL Hoodie</div>
+      <div class="card-price">~$70</div>
+      <div class="card-note" data-ko="공식 Riot 로고 후디. 유니섹스 핏. 안전 픽." data-en="Official Riot logo hoodie. Unisex fit. Safe pick.">공식 Riot 로고 후디. 유니섹스 핏. 안전 픽.</div>
+      <div class="card-badge">Riot 공식</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card" data-cat="apparel" onclick="openModal('a2')">
+      <div class="card-cat" data-ko="의류" data-en="Apparel">의류</div>
+      <div class="card-name">Viper Zip-Up Hoodie</div>
+      <div class="card-price">~$80</div>
+      <div class="card-note" data-ko="Viper 디테일 자수. 100% 코튼 프렌치 테리." data-en="Viper embroidered detail. 100% cotton French terry.">Viper 디테일 자수. 100% 코튼 프렌치 테리.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card" data-cat="apparel" onclick="openModal('a3')">
+      <div class="card-cat" data-ko="의류" data-en="Apparel">의류</div>
+      <div class="card-name">Jett Pullover Hoodie (Blue Glow)</div>
+      <div class="card-price">~$30-45</div>
+      <div class="card-note" data-ko="Amazon 인기 Jett 프린트. 가성비." data-en="Amazon popular Jett print. Budget-friendly.">Amazon 인기 Jett 프린트. 가성비.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+  </div>
+
+  <!-- ── GIFT SECTION B: Plush ── -->
+  <div class="section-header" data-section="plush">
+    <div class="section-icon">&#129528;</div>
+    <div class="section-title" data-ko="B. 플러시 / 키체인 (Plush)" data-en="B. Plush / Keychain">B. 플러시 / 키체인</div>
+    <div class="section-count">3</div>
+  </div>
+  <div class="card-grid" data-section="plush">
+
+    <div class="card" data-cat="plush" onclick="openModal('b1')">
+      <div class="card-cat" data-ko="플러시" data-en="Plush">플러시</div>
+      <div class="card-name">Valorant Jett Plush 3.9"</div>
+      <div class="card-price">~$10-15</div>
+      <div class="card-note" data-ko="키체인 가능. 귀엽고 올에이지." data-en="Keychain-able. Cute, all ages.">키체인 가능. 귀엽고 올에이지.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card" data-cat="plush" onclick="openModal('b2')">
+      <div class="card-cat" data-ko="플러시" data-en="Plush">플러시</div>
+      <div class="card-name">Wingman Plush (VLRNT // FRGMT)</div>
+      <div class="card-price">~$25-35</div>
+      <div class="card-note" data-ko="Valorant 마스코트. 젠더 뉴트럴. Kenny 픽 #2." data-en="Valorant mascot. Gender-neutral. Kenny pick #2.">Valorant 마스코트. 젠더 뉴트럴. Kenny 픽 #2.</div>
+      <div class="card-badge">Kenny #2</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card" data-cat="plush" onclick="openModal('b3')">
+      <div class="card-cat" data-ko="플러시 / 키체인" data-en="Plush / Keychain">플러시 / 키체인</div>
+      <div class="card-name">Valorant 커스텀 키체인 / 핀</div>
+      <div class="card-price">~$8-20</div>
+      <div class="card-note" data-ko="Etsy 아티스트 디자인. 개성 있는 선물." data-en="Etsy artist-designed. Personal touch.">Etsy 아티스트 디자인. 개성 있는 선물.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+  </div>
+
+  <!-- ── GIFT SECTION D: VP Card ── -->
+  <div class="section-header" data-section="vp">
+    <div class="section-icon">&#127881;</div>
+    <div class="section-title" data-ko="D. Valorant Points 기프트 카드" data-en="D. Valorant Points Gift Card">D. VP 기프트 카드</div>
+    <div class="section-count">3</div>
+  </div>
+  <div class="card-grid" data-section="vp">
+
+    <div class="card coral" data-cat="vp" onclick="openModal('d1')">
+      <div class="card-cat" data-ko="VP 카드" data-en="VP Card">VP 카드</div>
+      <div class="card-name">VALORANT $25 Gift Card</div>
+      <div class="card-price">$25</div>
+      <div class="card-note" data-ko="즉시 코드 발송. 안전 픽." data-en="Instant code delivery. Safe pick.">즉시 코드 발송. 안전 픽.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card coral" data-cat="vp" onclick="openModal('d2')">
+      <div class="card-cat" data-ko="VP 카드" data-en="VP Card">VP 카드</div>
+      <div class="card-name">VALORANT $50 Gift Card</div>
+      <div class="card-price">$50</div>
+      <div class="card-note" data-ko="최고 VP 가성비. 보너스 VP 포함. Kenny 픽 #1." data-en="Best VP ratio. Bonus VP often included. Kenny pick #1.">최고 VP 가성비. Kenny 픽 #1.</div>
+      <div class="card-badge">Kenny #1</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card coral" data-cat="vp" onclick="openModal('d3')">
+      <div class="card-cat" data-ko="VP 카드" data-en="VP Card">VP 카드</div>
+      <div class="card-name">VALORANT $100 Gift Card</div>
+      <div class="card-price">$100</div>
+      <div class="card-note" data-ko="대형 스킨 / 배틀패스 커버. 최대 보너스 VP." data-en="Big skin / battlepass coverage. Max bonus VP tier.">대형 스킨 / 배틀패스 커버.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+  </div>
+
+  <!-- ── GIFT SECTION E: Collectibles ── -->
+  <div class="section-header" data-section="collectibles">
+    <div class="section-icon">&#127942;</div>
+    <div class="section-title" data-ko="E. 에이전트 피규어 (Collectibles)" data-en="E. Agent Collectibles">E. 에이전트 피규어</div>
+    <div class="section-count">3</div>
+  </div>
+  <div class="card-grid" data-section="collectibles">
+
+    <div class="card" data-cat="collectibles" onclick="openModal('e1')">
+      <div class="card-cat" data-ko="피규어" data-en="Figure">피규어</div>
+      <div class="card-name">VALORANT Jett Statue 12"</div>
+      <div class="card-price">~$150-200</div>
+      <div class="card-note" data-ko="첫 공식 Jett 스태추. 정교한 페인트." data-en="First official Jett statue. Detailed paint.">첫 공식 Jett 스태추. 정교한 페인트.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card" data-cat="collectibles" onclick="openModal('e2')">
+      <div class="card-cat" data-ko="피규어" data-en="Figure">피규어</div>
+      <div class="card-name">VALORANT Phoenix Statue 12.5"</div>
+      <div class="card-price">~$150-200</div>
+      <div class="card-note" data-ko="Jett 와 페어 피스. 파이어볼 포즈." data-en="Pair-piece with Jett. Fireball pose.">Jett 와 페어. 파이어볼 포즈.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card" data-cat="collectibles" onclick="openModal('e3')">
+      <div class="card-cat" data-ko="피규어" data-en="Figure">피규어</div>
+      <div class="card-name">Alpha Collection Sage Figure 1/6</div>
+      <div class="card-price">~$90-130</div>
+      <div class="card-note" data-ko="더 작고 선물하기 좋음. 힐링 모티프." data-en="Smaller, giftable. Healing motif (sweet vibe).">더 작고 선물하기 좋음. 힐링 모티프.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+  </div>
+
+  <!-- ── GIFT SECTION F: Riot Limited ── -->
+  <div class="section-header" data-section="riot">
+    <div class="section-icon">&#127775;</div>
+    <div class="section-title" data-ko="F. Riot 한정 드롭" data-en="F. Riot Limited Drops">F. Riot 한정 드롭</div>
+    <div class="section-count">3</div>
+  </div>
+  <div class="card-grid" data-section="riot">
+
+    <div class="card" data-cat="riot" onclick="openModal('f1')">
+      <div class="card-cat" data-ko="한정 드롭" data-en="Limited Drop">한정 드롭</div>
+      <div class="card-name">VALORANT "Defy The Limits" Windbreaker</div>
+      <div class="card-price">$79.99</div>
+      <div class="card-note" data-ko="경량 자켓. 공식 Riot 드롭." data-en="Lightweight jacket. Official Riot drop.">경량 자켓. 공식 Riot 드롭.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card" data-cat="riot" onclick="openModal('f2')">
+      <div class="card-cat" data-ko="한정 드롭" data-en="Limited Drop">한정 드롭</div>
+      <div class="card-name">Masters Santiago 한정 컬렉션</div>
+      <div class="card-price" data-ko="가격 다양" data-en="Varies">가격 다양</div>
+      <div class="card-note" data-ko="2026년 2월 e스포츠 이벤트 한정. 수집 가치." data-en="Feb 2026 esports event limited. Collectible value.">2026 e스포츠 한정. 수집 가치.</div>
+      <div class="card-badge" data-ko="한정" data-en="Limited">한정</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card" data-cat="riot" onclick="openModal('f3')">
+      <div class="card-cat" data-ko="한정 드롭" data-en="Limited Drop">한정 드롭</div>
+      <div class="card-name">VLRNT // FRGMT Collab</div>
+      <div class="card-price" data-ko="가격 다양" data-en="Varies">가격 다양</div>
+      <div class="card-note" data-ko="Champions Paris 한정 콜라보. 티/후디/캡/Wingman 플러시." data-en="Champions Paris limited collab. Tees / hoodies / cap / Wingman plush.">Champions Paris 한정 콜라보.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+  </div>
+
+  <!-- ── GEAR SECTION: Mouse ── -->
+  <div class="section-header" data-section="mouse">
+    <div class="section-icon">&#128432;</div>
+    <div class="section-title" data-ko="마우스 (Gear)" data-en="Mouse (Gear)">마우스 (Gear)</div>
+    <div class="section-count">3 tiers</div>
+  </div>
+  <div class="card-grid" data-section="mouse">
+
+    <div class="card coral" data-cat="mouse" onclick="openModal('m1')">
+      <div class="card-cat" data-ko="마우스 &middot; 입문" data-en="Mouse &middot; Entry">마우스 &middot; 입문</div>
+      <div class="card-name">Pulsar X2H Mini</div>
+      <div class="card-price">~$50</div>
+      <div class="card-note" data-ko="52g. 작은 손 fit. claw+fingertip. 가성비 1위." data-en="52g. Small hand fit. Claw+fingertip. Best budget pick.">52g. 작은 손 fit. 가성비 1위.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card coral" data-cat="mouse" onclick="openModal('m2')">
+      <div class="card-cat" data-ko="마우스 &middot; 중급" data-en="Mouse &middot; Mid">마우스 &middot; 중급</div>
+      <div class="card-name">Razer Viper V3 Pro</div>
+      <div class="card-price">~$150</div>
+      <div class="card-note" data-ko="54g. 8K Hz. Valorant 프로 sweet spot. 소연 픽 B." data-en="54g. 8K Hz. Valorant pro sweet spot. Soyeon Pick B.">54g. Valorant 프로 sweet spot. 소연 픽 B.</div>
+      <div class="card-badge">픽 B</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card coral" data-cat="mouse" onclick="openModal('m3')">
+      <div class="card-cat" data-ko="마우스 &middot; 프로" data-en="Mouse &middot; Pro">마우스 &middot; 프로</div>
+      <div class="card-name">Logitech G PRO X Superlight 2</div>
+      <div class="card-price">~$160</div>
+      <div class="card-note" data-ko="60g. 프로 38% 사용. Kenny 픽 #3." data-en="60g. 38% of Valo pros use it. Kenny pick #3.">60g. 프로 38% 사용. Kenny 픽 #3.</div>
+      <div class="card-badge">Kenny #3</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+  </div>
+
+  <!-- ── GEAR SECTION: Keyboard ── -->
+  <div class="section-header" data-section="keyboard">
+    <div class="section-icon">&#9000;</div>
+    <div class="section-title" data-ko="키보드 (Gear)" data-en="Keyboard (Gear)">키보드 (Gear)</div>
+    <div class="section-count">3 tiers</div>
+  </div>
+  <div class="card-grid" data-section="keyboard">
+
+    <div class="card" data-cat="keyboard" onclick="openModal('k1')">
+      <div class="card-cat" data-ko="키보드 &middot; 입문" data-en="Keyboard &middot; Entry">키보드 &middot; 입문</div>
+      <div class="card-name">Akko MOD007B HE</div>
+      <div class="card-price">~$110</div>
+      <div class="card-note" data-ko="65% / 홀 이펙트 입문 / Rapid Trigger 기본." data-en="65% / Hall-effect entry / Rapid Trigger basic.">65% / 홀 이펙트 입문.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card" data-cat="keyboard" onclick="openModal('k2')">
+      <div class="card-cat" data-ko="키보드 &middot; 중급" data-en="Keyboard &middot; Mid">키보드 &middot; 중급</div>
+      <div class="card-name">Wooting 60HE v2</div>
+      <div class="card-price">~$200</div>
+      <div class="card-note" data-ko="60%. Valo 프로 23.9% 점유. Rapid Trigger + Analog. 소연 픽 B." data-en="60%. 23.9% of Valo pros use it. Rapid Trigger. Soyeon Pick B.">Valo 프로 23.9% 점유. 소연 픽 B.</div>
+      <div class="card-badge">픽 B</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card" data-cat="keyboard" onclick="openModal('k3')">
+      <div class="card-cat" data-ko="키보드 &middot; 프로" data-en="Keyboard &middot; Pro">키보드 &middot; 프로</div>
+      <div class="card-name">Wooting 80HE</div>
+      <div class="card-price">~$240</div>
+      <div class="card-note" data-ko="TKL + F-keys + 화살표. 60HE 기능 + 사이즈 여유." data-en="TKL. 60HE features + more keys.">TKL. 60HE + 사이즈 여유.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+  </div>
+
+  <!-- ── GEAR SECTION: Mousepad ── -->
+  <div class="section-header" data-section="pad">
+    <div class="section-icon">&#11035;</div>
+    <div class="section-title" data-ko="마우스패드 (Gear)" data-en="Mousepad (Gear)">마우스패드 (Gear)</div>
+    <div class="section-count">3 styles</div>
+  </div>
+  <div class="card-grid" data-section="pad">
+
+    <div class="card coral" data-cat="pad" onclick="openModal('p1')">
+      <div class="card-cat" data-ko="패드 &middot; 슬라이딩" data-en="Pad &middot; Sliding">패드 &middot; 슬라이딩</div>
+      <div class="card-name">Artisan Hayate Otsu XSOFT</div>
+      <div class="card-price">~$70</div>
+      <div class="card-note" data-ko="빠른 flick aim / Jett&middot;Reyna 스타일. 중급 슬라이딩 1위." data-en="Fast flick aim / Jett / Reyna style. Top mid-tier sliding.">빠른 flick / Jett 스타일. 슬라이딩 최강.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card coral" data-cat="pad" onclick="openModal('p2')">
+      <div class="card-cat" data-ko="패드 &middot; 밸런스" data-en="Pad &middot; Balance">패드 &middot; 밸런스</div>
+      <div class="card-name">Artisan Zero SOFT</div>
+      <div class="card-price">~$70</div>
+      <div class="card-note" data-ko="속도 + 정지 균형. 스타일 미정 학생 default. 소연 픽 B." data-en="Speed + stop balance. Default for undecided style. Soyeon Pick B.">밸런스 default. 소연 픽 B.</div>
+      <div class="card-badge">픽 B</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+    <div class="card coral" data-cat="pad" onclick="openModal('p3')">
+      <div class="card-cat" data-ko="패드 &middot; 컨트롤" data-en="Pad &middot; Control">패드 &middot; 컨트롤</div>
+      <div class="card-name">Artisan FX Type-99 SOFT</div>
+      <div class="card-price">~$75</div>
+      <div class="card-note" data-ko="steady aim / Sage&middot;Cypher 스타일. 정밀 마이크로 조정." data-en="Steady aim / Sage / Cypher style. Precise micro-adjust.">steady aim / Sage 스타일. 정밀 조정.</div>
+      <div class="card-arrow">&rarr;</div>
+    </div>
+
+  </div>
+
+  <!-- ── KENNY PICKS ── -->
+  <div class="picks-box">
+    <div class="picks-label" data-ko="Kenny 픽 &mdash; Top 3" data-en="Kenny Picks &mdash; Top 3">Kenny 픽 &mdash; Top 3</div>
+    <div class="picks-row">
+      <div class="pick-item">
+        <div class="pick-rank" data-ko="#1 &mdash; SAFE" data-en="#1 &mdash; SAFE">#1 &mdash; SAFE</div>
+        <div class="pick-name">Valorant Points $50</div>
+        <div class="pick-why" data-ko="소연이 직접 스킨 / 배틀패스 고름. 에이전트 취향 몰라도 OK. 즉시 발송." data-en="Soyeon picks her own skin / battlepass. No agent guess needed. Instant delivery.">소연이 직접 스킨 고름. 에이전트 취향 몰라도 OK.</div>
+      </div>
+      <div class="pick-item">
+        <div class="pick-rank" data-ko="#2 &mdash; CUTE" data-en="#2 &mdash; CUTE">#2 &mdash; CUTE</div>
+        <div class="pick-name">Wingman Plush + Jett Plush Keychain</div>
+        <div class="pick-why" data-ko="마스코트 + 에이전트 콤보. 전시 + 키체인. 페어 선물 베스트." data-en="Mascot + agent combo. Display + keychain. Best pair gift.">마스코트 + 에이전트 콤보. 페어 선물 베스트.</div>
+      </div>
+      <div class="pick-item">
+        <div class="pick-rank" data-ko="#3 &mdash; PRO" data-en="#3 &mdash; PRO">#3 &mdash; PRO</div>
+        <div class="pick-name">Logitech G PRO X Superlight 2</div>
+        <div class="pick-why" data-ko="소연이 Valorant 진심이면 이게 정답. 프로 표준. 미래 기준점." data-en="If Soyeon is serious about Valorant -- this is the answer. Pro standard. Future benchmark.">소연이 진심이면 이게 정답. 프로 표준.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.main -->
+
+<footer>
+  <div data-ko="Newton School &middot; Traci Baek (소연) &middot; Valorant Gift &amp; Gear Guide" data-en="Newton School &middot; Traci Baek (Soyeon) &middot; Valorant Gift &amp; Gear Guide">Newton School &middot; Traci Baek (소연) &middot; Valorant Gift &amp; Gear Guide</div>
+  <div style="margin-top:4px;font-style:italic;" data-ko="2026-05-16 &middot; v1 (consensus 결과 반영 전)" data-en="2026-05-16 &middot; v1 (pre-consensus update)">2026-05-16 &middot; v1 (consensus 결과 반영 전)</div>
+</footer>
+
+<!-- ── MODAL ── -->
+<div class="modal-bg" id="modalBg" onclick="handleBgClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div>
+        <span class="modal-cat-badge" id="mCat"></span>
+        <div class="modal-name" id="mName"></div>
+      </div>
+      <button class="modal-x" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-price" id="mPrice"></div>
+      <div class="modal-desc" id="mDesc"></div>
+      <div class="modal-tags" id="mTags"></div>
+      <div id="mLinks"></div>
+      <div class="modal-note" id="mNote" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── DATA ── */
+const DATA = {
+  a1: {
+    cat_ko: '의류', cat_en: 'Apparel',
+    name: 'VALORANT PRTCL Hoodie (Unisex)',
+    price: '~$70',
+    desc_ko: '공식 Riot 로고 후디. 유니섹스 핏. 코튼 소재. 사이즈 추정 없이 줄 수 있는 안전 픽. Riot Merch 공식 스토어에서 구매 가능.',
+    desc_en: 'Official Riot logo hoodie. Unisex fit. Cotton. Safe pick — no size guessing needed. Available at Riot Merch official store.',
+    tags_ko: ['공식 Riot', '유니섹스', '로고 후디', '안전 픽'],
+    tags_en: ['Official Riot', 'Unisex', 'Logo Hoodie', 'Safe Pick'],
+    links: [{ label: 'Riot Merch (공식)', url: 'https://merch.riotgames.com/en-us/product/valorant-logo-hoodie-1/' }],
+    note_ko: '사이즈 확인 필요 — 후디는 US Women\'s S/M/L 소연 사이즈 확인 후 주문.',
+    note_en: 'Size check needed — confirm US Women\'s S/M/L for Soyeon before ordering.'
+  },
+  a2: {
+    cat_ko: '의류', cat_en: 'Apparel',
+    name: 'Viper Zip-Up Hoodie',
+    price: '~$80',
+    desc_ko: 'Viper 에이전트 테마 집업 후디. 독성 녹색 포인트. 자수 디테일. 100% 프렌치 테리 코튼. Viper 팬이라면 강력 추천.',
+    desc_en: 'Viper agent themed zip-up hoodie. Toxic green accents. Embroidered Viper detail. 100% French terry cotton.',
+    tags_ko: ['Viper 테마', '집업', '자수 디테일', '코튼'],
+    tags_en: ['Viper Theme', 'Zip-Up', 'Embroidered', 'Cotton'],
+    links: [{ label: 'Riot Merch', url: 'https://playvalorant.com/en-us/news/riotstore/new-viper-themed-merch-drop/' }],
+    note_ko: '소연 좋아하는 에이전트가 Viper 인지 확인 후 구매 추천.',
+    note_en: 'Confirm Soyeon likes Viper before buying.'
+  },
+  a3: {
+    cat_ko: '의류', cat_en: 'Apparel',
+    name: 'Jett Pullover Hoodie (Blue Glow)',
+    price: '~$30-45',
+    desc_ko: 'Amazon 인기 Jett 프린트 풀오버 후디. 공식 아님. 가성비 옵션. Jett 팬이면 충분히 만족스러운 선물.',
+    desc_en: 'Amazon popular Jett print pullover hoodie. Unofficial. Budget option. Great for Jett fans.',
+    tags_ko: ['Amazon', 'Jett', '가성비', '비공식'],
+    tags_en: ['Amazon', 'Jett', 'Budget', 'Unofficial'],
+    links: [{ label: 'Amazon', url: 'https://www.amazon.com/valorant-hoodie/s?k=valorant+hoodie' }]
+  },
+  b1: {
+    cat_ko: '플러시', cat_en: 'Plush',
+    name: 'Valorant Jett Plush 3.9"',
+    price: '~$10-15',
+    desc_ko: '귀여운 Jett 소프트 플러시. 키체인 가능 사이즈. 올에이지. Walmart 에서 구매 가능. 저렴하게 "덤" 으로 추가하기 좋음.',
+    desc_en: 'Cute Jett soft plush. Keychain-able size. All ages. Available at Walmart. Great add-on gift.',
+    tags_ko: ['Jett', '플러시', '키체인', 'Walmart', '가성비'],
+    tags_en: ['Jett', 'Plush', 'Keychain', 'Walmart', 'Budget'],
+    links: [
+      { label: 'Walmart', url: 'https://www.walmart.com/ip/Valorant-Plush-3-9-Inch-Super-Soft-Plush-Doll-Pendant-Valorant-Jett-Plush-for-Game-Fans-Collectible-Stuffed-Animal-for-All-Ages/19260967376' },
+      { label: 'Amazon', url: 'https://www.amazon.com/valorant-plush/s?k=valorant+plush' }
+    ]
+  },
+  b2: {
+    cat_ko: '플러시', cat_en: 'Plush',
+    name: 'Wingman Plush (VLRNT // FRGMT)',
+    price: '~$25-35',
+    desc_ko: 'Valorant 공식 마스코트 Wingman 플러시. VLRNT // FRGMT 컬렉션. 젠더 뉴트럴. Kenny 픽 #2. 메인 선물 + 애드온 조합 최적.',
+    desc_en: 'Valorant official mascot Wingman plush. VLRNT // FRGMT collection. Gender-neutral. Kenny pick #2. Best main + add-on combo.',
+    tags_ko: ['Wingman', '공식 마스코트', 'Kenny 픽 #2', '젠더 뉴트럴'],
+    tags_en: ['Wingman', 'Official Mascot', 'Kenny Pick #2', 'Gender-neutral'],
+    links: [{ label: 'Riot Merch', url: 'https://merch.riotgames.com/en-us/category/valorant/' }],
+    note_ko: 'Kenny 픽 #2: VP $50 과 조합 추천. $80 예산 = VP $50 + Wingman Plush.',
+    note_en: 'Kenny Pick #2: Pair with VP $50. $80 budget = VP $50 + Wingman Plush.'
+  },
+  b3: {
+    cat_ko: '플러시 / 키체인', cat_en: 'Plush / Keychain',
+    name: 'Valorant 커스텀 키체인 / 핀',
+    price: '~$8-20',
+    desc_ko: 'Etsy 아티스트 제작 키체인 / 에나멜 핀. Jett / Sage / Clove 등 선택 가능. 소연이 좋아하는 에이전트로 개인화.',
+    desc_en: 'Etsy artist-designed keychain / enamel pin. Jett / Sage / Clove etc. Personalizable to Soyeon\'s favorite agent.',
+    tags_ko: ['Etsy', '커스텀', '개인화', '키체인', '에나멜 핀'],
+    tags_en: ['Etsy', 'Custom', 'Personalized', 'Keychain', 'Enamel Pin'],
+    links: [{ label: 'Etsy 검색', url: 'https://www.etsy.com/market/valorant_plush' }]
+  },
+  d1: {
+    cat_ko: 'VP 카드', cat_en: 'VP Card',
+    name: 'VALORANT $25 Gift Card',
+    price: '$25',
+    desc_ko: '즉시 코드 발송. Amazon 공식 판매. 소연이 직접 원하는 스킨 / 액세서리 고를 수 있음. 가장 안전한 선물.',
+    desc_en: 'Instant code delivery. Amazon official. Soyeon picks her own skin / accessory. Safest gift.',
+    tags_ko: ['즉시 발송', 'Amazon 공식', '안전 픽', '소연 직접 선택'],
+    tags_en: ['Instant Delivery', 'Amazon Official', 'Safe Pick', 'Soyeon Chooses'],
+    links: [{ label: 'Amazon', url: 'https://www.amazon.com/VALORANT-25-Gift-Card-Online/dp/B088GD5WD4' }]
+  },
+  d2: {
+    cat_ko: 'VP 카드', cat_en: 'VP Card',
+    name: 'VALORANT $50 Gift Card',
+    price: '$50',
+    desc_ko: '최고 VP 가성비 구간. 보너스 VP 포함 가능. 스킨 1-2개 또는 배틀패스 커버. Kenny 픽 #1 — 에이전트 취향 몰라도 완벽.',
+    desc_en: 'Best VP per dollar. Bonus VP often included. Covers 1-2 skins or battlepass. Kenny pick #1 — works regardless of agent preference.',
+    tags_ko: ['Kenny 픽 #1', '최고 VP 가성비', '배틀패스', '보너스 VP'],
+    tags_en: ['Kenny Pick #1', 'Best VP Ratio', 'Battlepass', 'Bonus VP'],
+    links: [
+      { label: 'Amazon', url: 'https://www.amazon.com/VALORANT-25-Gift-Card-Online/dp/B088GD5WD4' },
+      { label: 'Riot Direct', url: 'https://playvalorant.com/en-us/' }
+    ],
+    note_ko: 'Kenny 픽 #1. $80 예산이면 VP $50 + Wingman Plush 조합 최고.',
+    note_en: 'Kenny Pick #1. $80 budget: VP $50 + Wingman Plush is the best combo.'
+  },
+  d3: {
+    cat_ko: 'VP 카드', cat_en: 'VP Card',
+    name: 'VALORANT $100 Gift Card',
+    price: '$100',
+    desc_ko: '대형 스킨 / 배틀패스 + 여유 VP. 최대 보너스 VP 구간. 소연에게 크게 주고 싶을 때.',
+    desc_en: 'Big skin / battlepass + extra VP. Max bonus VP tier. When you want to give Soyeon the best.',
+    tags_ko: ['최대 보너스 VP', '대형 스킨', '배틀패스'],
+    tags_en: ['Max Bonus VP', 'Big Skin', 'Battlepass'],
+    links: [{ label: 'Amazon', url: 'https://www.amazon.com/VALORANT-25-Gift-Card-Online/dp/B088GD5WD4' }]
+  },
+  e1: {
+    cat_ko: '피규어', cat_en: 'Figure',
+    name: 'VALORANT Jett Statue 12"',
+    price: '~$150-200',
+    desc_ko: '첫 공식 Jett 스태추. 12인치. 정교한 페인트. Apex Toys 콜라보. Jett 팬이면 드림 선물.',
+    desc_en: 'First official Jett statue. 12". Detailed paint. Apex Toys collab. Dream gift for Jett fans.',
+    tags_ko: ['공식 Jett', '스태추', '12인치', '정교한 페인트'],
+    tags_en: ['Official Jett', 'Statue', '12"', 'Detailed Paint'],
+    links: [{ label: 'Riot Merch', url: 'https://merch.riotgames.com/en-us/product/valorant-jett-statue/' }],
+    note_ko: '소연 좋아하는 에이전트가 Jett 인지 확인 필수. 에이전트 취향 모르면 VP 카드 추천.',
+    note_en: 'Confirm Soyeon likes Jett. If agent is unknown, go VP Card instead.'
+  },
+  e2: {
+    cat_ko: '피규어', cat_en: 'Figure',
+    name: 'VALORANT Phoenix Statue 12.5"',
+    price: '~$150-200',
+    desc_ko: 'Jett 와 페어 피스. 12.5인치. 파이어볼 포즈. Phoenix 팬 또는 Jett + Phoenix 세트로.',
+    desc_en: 'Pair-piece with Jett. 12.5". Fireball pose. For Phoenix fans or Jett+Phoenix set.',
+    tags_ko: ['Phoenix', '스태추', '12.5인치', 'Jett 페어'],
+    tags_en: ['Phoenix', 'Statue', '12.5"', 'Jett Pair'],
+    links: [{ label: 'Riot Merch', url: 'https://merch.riotgames.com/en-gb/product/valorant-reyna-statue/' }]
+  },
+  e3: {
+    cat_ko: '피규어', cat_en: 'Figure',
+    name: 'Alpha Collection Sage Figure 1/6 scale',
+    price: '~$90-130',
+    desc_ko: '1/6 스케일 PVC. 힐링 모티프. 더 작고 선물하기 좋음. 여성스러운 느낌. Sage 가 좋은 보조 픽.',
+    desc_en: '1/6 scale PVC. Healing motif. Smaller, more giftable. Feminine feel. Great if Sage fits Soyeon.',
+    tags_ko: ['Sage', '1/6 스케일', 'PVC', '힐링 모티프', '선물 최적'],
+    tags_en: ['Sage', '1/6 Scale', 'PVC', 'Healing Motif', 'Giftable'],
+    links: [{ label: 'Riot Merch', url: 'https://merch.riotgames.com/en-us/product/val-alpha-collection-sage-figure/' }]
+  },
+  f1: {
+    cat_ko: '한정 드롭', cat_en: 'Limited Drop',
+    name: 'VALORANT "Defy The Limits" Windbreaker',
+    price: '$79.99',
+    desc_ko: '경량 자켓. 공식 Riot 드롭. Valorant 브랜드 아이덴티티 담긴 패션 아이템.',
+    desc_en: 'Lightweight jacket. Official Riot drop. Valorant brand identity fashion item.',
+    tags_ko: ['윈드브레이커', '공식 Riot', '경량 자켓'],
+    tags_en: ['Windbreaker', 'Official Riot', 'Lightweight Jacket'],
+    links: [{ label: 'Riot Merch', url: 'https://merch.riotgames.com/en-us/product/valorant-defy-the-limits-windbreaker/' }],
+    note_ko: '사이즈 확인 필요.',
+    note_en: 'Size confirmation needed.'
+  },
+  f2: {
+    cat_ko: '한정 드롭', cat_en: 'Limited Drop',
+    name: 'Masters Santiago 한정 컬렉션 (Feb 2026)',
+    price: 'Varies',
+    desc_ko: '2026년 2월 Masters Santiago e스포츠 이벤트 한정 컬렉션. 수집 가치 있음. 재고 확인 필요.',
+    desc_en: 'Feb 2026 Masters Santiago esports event limited collection. Collectible value. Stock check needed.',
+    tags_ko: ['한정 컬렉션', 'e스포츠', '수집 가치', 'Masters Santiago'],
+    tags_en: ['Limited Collection', 'Esports', 'Collectible', 'Masters Santiago'],
+    links: [{ label: 'Riot Merch', url: 'https://merch.riotgames.com/en-us/category/valorant/' }]
+  },
+  f3: {
+    cat_ko: '한정 드롭', cat_en: 'Limited Drop',
+    name: 'VLRNT // FRGMT Collaboration',
+    price: 'Varies',
+    desc_ko: 'Champions Paris 한정 콜라보. 티셔츠 / 후디 / 캡 / Wingman 플러시 포함. 하이프 팩터 높음. 재고 매우 제한적.',
+    desc_en: 'Champions Paris limited collab. Tees / hoodies / cap / Wingman plush. High hype factor. Very limited stock.',
+    tags_ko: ['Champions Paris', '콜라보', 'FRGMT', 'Wingman 플러시', '한정'],
+    tags_en: ['Champions Paris', 'Collab', 'FRGMT', 'Wingman Plush', 'Limited'],
+    links: [{ label: 'Riot Merch', url: 'https://playvalorant.com/en-us/news/riotstore/the-vlrnt-frgmt-collection/' }]
+  },
+  m1: {
+    cat_ko: '마우스 (입문)', cat_en: 'Mouse (Entry)',
+    name: 'Pulsar X2H Mini',
+    price: '~$50',
+    desc_ko: '52g 초경량. 소형 손 + claw / fingertip grip fit. 입문 Valorant 마우스 가성비 1위. 소연 픽 A 콤보 구성품.',
+    desc_en: '52g ultralight. Small hand + claw / fingertip grip fit. Top budget Valorant mouse. Part of Soyeon Pick A combo.',
+    tags_ko: ['52g', '소형 손', 'claw grip', '가성비', '픽 A'],
+    tags_en: ['52g', 'Small Hand', 'Claw Grip', 'Budget', 'Pick A'],
+    links: [{ label: 'Pulsar 공식', url: 'https://pulsar.gg' }, { label: 'Amazon', url: 'https://www.amazon.com/s?k=pulsar+x2h+mini' }]
+  },
+  m2: {
+    cat_ko: '마우스 (중급)', cat_en: 'Mouse (Mid)',
+    name: 'Razer Viper V3 Pro',
+    price: '~$150',
+    desc_ko: '54g. 8K Hz 폴링레이트. 2026년 5월 기준 Valorant 프로 174명 사용. 소형~중형 손 친화. 소연 픽 B 콤보 구성품.',
+    desc_en: '54g. 8K Hz polling rate. 174 Valorant pros use it (May 2026). Small-medium hand friendly. Soyeon Pick B combo.',
+    tags_ko: ['54g', '8K Hz', 'Valorant 프로 174명', '소형~중형 손', '픽 B'],
+    tags_en: ['54g', '8K Hz', '174 Valo Pros', 'Small-Medium Hand', 'Pick B'],
+    links: [{ label: 'Razer 공식', url: 'https://razer.com' }, { label: 'Amazon', url: 'https://www.amazon.com/s?k=razer+viper+v3+pro' }]
+  },
+  m3: {
+    cat_ko: '마우스 (프로)', cat_en: 'Mouse (Pro)',
+    name: 'Logitech G PRO X Superlight 2',
+    price: '~$160',
+    desc_ko: '60g. Valorant 프로 38% 사용 (2026년 5월 기준 1위). "지슈라 2" 한국 커뮤니티 별명. 무선. 최상위 성능. Kenny 픽 #3.',
+    desc_en: '60g. 38% of Valorant pros use it (May 2026, #1). "Ji-Shu-Ra 2" in Korean community. Wireless. Top performance. Kenny pick #3.',
+    tags_ko: ['60g', '프로 38%', '무선', '지슈라 2', 'Kenny 픽 #3'],
+    tags_en: ['60g', '38% Pros', 'Wireless', 'Ji-Shu-Ra 2', 'Kenny Pick #3'],
+    links: [{ label: 'Logitech 공식', url: 'https://www.logitechg.com/en-us/shop/p/pro-x2-superlight-wireless-mouse' }, { label: 'Amazon', url: 'https://www.amazon.com/s?k=logitech+g+pro+x+superlight+2' }],
+    note_ko: 'Kenny 픽 #3. 소연이 Valorant 진심이면 이 마우스가 기준점. 대학까지 쓸 수 있음.',
+    note_en: 'Kenny Pick #3. If Soyeon is serious about Valorant, this is the benchmark. Will last through college.'
+  },
+  k1: {
+    cat_ko: '키보드 (입문)', cat_en: 'Keyboard (Entry)',
+    name: 'Akko MOD007B HE',
+    price: '~$110',
+    desc_ko: '65% 레이아웃. 홀 이펙트 스위치. Rapid Trigger 입문. 마그네틱 입문기 최고 가성비.',
+    desc_en: '65% layout. Hall-effect switches. Rapid Trigger entry. Best budget magnetic keyboard.',
+    tags_ko: ['65%', '홀 이펙트', 'Rapid Trigger', '입문', '가성비'],
+    tags_en: ['65%', 'Hall-Effect', 'Rapid Trigger', 'Entry', 'Budget'],
+    links: [{ label: 'Amazon', url: 'https://www.amazon.com/s?k=akko+mod007b+he' }]
+  },
+  k2: {
+    cat_ko: '키보드 (중급)', cat_en: 'Keyboard (Mid)',
+    name: 'Wooting 60HE v2',
+    price: '~$200',
+    desc_ko: '60% 레이아웃. Valorant 프로 23.9% 점유 (2위). Analog + Rapid Trigger. 소연 픽 B 콤보 구성품.',
+    desc_en: '60% layout. 23.9% of Valorant pros (2nd most used). Analog + Rapid Trigger. Soyeon Pick B combo.',
+    tags_ko: ['60%', '프로 23.9%', 'Rapid Trigger', 'Analog', '픽 B'],
+    tags_en: ['60%', '23.9% Pros', 'Rapid Trigger', 'Analog', 'Pick B'],
+    links: [{ label: 'Wooting 공식', url: 'https://wooting.io' }]
+  },
+  k3: {
+    cat_ko: '키보드 (프로)', cat_en: 'Keyboard (Pro)',
+    name: 'Wooting 80HE',
+    price: '~$240',
+    desc_ko: 'TKL 레이아웃. F-keys + 화살표 포함. 60HE v2 모든 기능 + 사이즈 여유. 화살표 필요한 사람에게.',
+    desc_en: 'TKL layout. Includes F-keys + arrow keys. All 60HE v2 features + more room. For those who need arrow keys.',
+    tags_ko: ['TKL', 'F-keys', '화살표', '60HE 상위 버전'],
+    tags_en: ['TKL', 'F-keys', 'Arrow Keys', '60HE Upgrade'],
+    links: [{ label: 'Wooting 공식', url: 'https://wooting.io' }]
+  },
+  p1: {
+    cat_ko: '패드 (슬라이딩)', cat_en: 'Pad (Sliding)',
+    name: 'Artisan FX Hayate Otsu XSOFT',
+    price: '~$70',
+    desc_ko: '빠른 flick aim 스타일. Jett · Reyna 같은 공격적 에이전트 핏. 일본 직구 (배송 2-3주) 또는 Amazon KR. 중급 슬라이딩 1위.',
+    desc_en: 'Fast flick aim style. Jett / Reyna aggressive agent fit. Japan direct (2-3 wks) or Amazon KR. Top mid-tier sliding.',
+    tags_ko: ['슬라이딩', 'Jett/Reyna', 'XSOFT', 'flick aim', 'Artisan 일본'],
+    tags_en: ['Sliding', 'Jett/Reyna', 'XSOFT', 'Flick Aim', 'Artisan Japan'],
+    links: [{ label: 'Artisan 공식', url: 'https://artisan-jp.com/global/' }]
+  },
+  p2: {
+    cat_ko: '패드 (밸런스)', cat_en: 'Pad (Balance)',
+    name: 'Artisan Zero SOFT',
+    price: '~$70',
+    desc_ko: '속도 + 정지 균형. 스타일 미정 학생 default 픽. 어떤 에이전트든 쓸 수 있음. 소연 픽 B 콤보 구성품.',
+    desc_en: 'Speed + stop balance. Default for undecided style. Works for any agent. Soyeon Pick B combo.',
+    tags_ko: ['밸런스', 'SOFT', '스타일 무관', '픽 B 기본', 'Artisan'],
+    tags_en: ['Balance', 'SOFT', 'Any Style', 'Pick B Default', 'Artisan'],
+    links: [{ label: 'Artisan 공식', url: 'https://artisan-jp.com/global/' }],
+    note_ko: '픽 B 콤보 기본 패드. 소연 스타일 확정 전 가장 무난한 선택.',
+    note_en: 'Pick B combo default pad. Safest choice before Soyeon\'s style is confirmed.'
+  },
+  p3: {
+    cat_ko: '패드 (컨트롤)', cat_en: 'Pad (Control)',
+    name: 'Artisan FX Type-99 SOFT',
+    price: '~$75',
+    desc_ko: 'Steady aim 스타일. Sage · Cypher 같은 수비적 에이전트 핏. 정밀 마이크로 조정 최적화.',
+    desc_en: 'Steady aim style. Sage / Cypher defensive agent fit. Optimized for precise micro-adjustment.',
+    tags_ko: ['컨트롤', 'Sage/Cypher', 'SOFT', 'steady aim', 'Artisan Type-99'],
+    tags_en: ['Control', 'Sage/Cypher', 'SOFT', 'Steady Aim', 'Artisan Type-99'],
+    links: [{ label: 'Artisan 공식', url: 'https://artisan-jp.com/global/' }]
+  }
+};
+
+/* ── THEME ── */
+(function() {
+  const saved = localStorage.getItem('traci-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
+})();
+function toggleTheme() {
+  const h = document.documentElement;
+  const isDark = h.getAttribute('data-theme') === 'dark';
+  h.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-toggle').textContent = isDark ? 'Dark' : 'Light';
+  localStorage.setItem('traci-theme', isDark ? 'light' : 'dark');
+}
+
+/* ── LANGUAGE ── */
+let lang = localStorage.getItem('traci-lang') || 'ko';
+function applyLang() {
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    el.innerHTML = el.getAttribute('data-' + lang);
+  });
+  document.getElementById('lang-toggle').textContent = lang === 'ko' ? 'EN' : 'KO';
+}
+function toggleLang() {
+  lang = lang === 'ko' ? 'en' : 'ko';
+  localStorage.setItem('traci-lang', lang);
+  applyLang();
+}
+if (lang === 'en') applyLang();
+
+/* ── TAB FILTER ── */
+let currentFilter = 'all';
+function filterTab(el, cat) {
+  currentFilter = cat;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.card').forEach(c => {
+    c.classList.toggle('hidden', cat !== 'all' && c.getAttribute('data-cat') !== cat);
+  });
+  // hide section headers if all cards hidden
+  document.querySelectorAll('[data-section]').forEach(sec => {
+    const grid = document.querySelector('.card-grid[data-section="' + sec.getAttribute('data-section') + '"]');
+    if (!grid) return;
+    const visible = [...grid.querySelectorAll('.card')].some(c => !c.classList.contains('hidden'));
+    sec.style.display = visible ? '' : 'none';
+    grid.style.display = visible ? '' : 'none';
+  });
+}
+
+/* ── MODAL ── */
+function openModal(id) {
+  const d = DATA[id];
+  if (!d) return;
+  document.getElementById('mCat').textContent = lang === 'ko' ? d.cat_ko : d.cat_en;
+  document.getElementById('mName').textContent = d.name;
+  document.getElementById('mPrice').textContent = d.price;
+  document.getElementById('mDesc').textContent = lang === 'ko' ? d.desc_ko : d.desc_en;
+
+  const tagsEl = document.getElementById('mTags');
+  tagsEl.innerHTML = '';
+  const tags = lang === 'ko' ? (d.tags_ko || []) : (d.tags_en || []);
+  tags.forEach(t => {
+    const span = document.createElement('span');
+    span.className = 'modal-tag'; span.textContent = t;
+    tagsEl.appendChild(span);
+  });
+
+  const linksEl = document.getElementById('mLinks');
+  linksEl.innerHTML = '';
+  (d.links || []).forEach((l, i) => {
+    const a = document.createElement('a');
+    a.className = 'modal-link' + (i > 0 ? ' secondary' : '');
+    a.href = l.url; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = l.label + ' ↗';
+    linksEl.appendChild(a);
+  });
+
+  const noteEl = document.getElementById('mNote');
+  const noteText = lang === 'ko' ? (d.note_ko || '') : (d.note_en || '');
+  if (noteText) {
+    noteEl.textContent = noteText;
+    noteEl.style.display = '';
+  } else {
+    noteEl.style.display = 'none';
+  }
+
+  document.getElementById('modalBg').classList.add('open');
+  document.body.classList.add('no-scroll');
+}
+function closeModal() {
+  document.getElementById('modalBg').classList.remove('open');
+  document.body.classList.remove('no-scroll');
+}
+function handleBgClick(e) {
+  if (e.target === document.getElementById('modalBg')) closeModal();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
