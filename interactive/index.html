@@ -6,7 +6,7 @@
   Source: 2026-05-16_valorant-gift-for-soyeon.md + 2026-05-16_valorant-gear-soyeon.md
   Features: card grid, click -> modal popup, light/dark toggle, ko/en toggle
 -->
-<html lang="ko" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -978,7 +978,7 @@ const DATA = {
 
 /* ── THEME ── */
 (function() {
-  const saved = localStorage.getItem('traci-theme') || 'dark';
+  const saved = localStorage.getItem('traci-theme') || 'light';
   document.documentElement.setAttribute('data-theme', saved);
   document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
 })();
@@ -991,7 +991,7 @@ function toggleTheme() {
 }
 
 /* ── LANGUAGE ── */
-let lang = localStorage.getItem('traci-lang') || 'ko';
+let lang = localStorage.getItem('traci-lang') || 'en';
 function applyLang() {
   document.querySelectorAll('[data-ko]').forEach(el => {
     el.innerHTML = el.getAttribute('data-' + lang);

@@ -6,7 +6,7 @@
   Pattern: Kenny-baek-portal structure (masthead + timeline + interactive cards)
   Features: light/dark toggle, ko/en toggle, search, localStorage
 -->
-<html lang="ko" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -650,7 +650,7 @@
 <script>
   /* ── THEME ── */
   (function() {
-    const saved = localStorage.getItem('traci-theme') || 'dark';
+    const saved = localStorage.getItem('traci-theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
     document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
   })();
@@ -665,7 +665,7 @@
   }
 
   /* ── LANGUAGE ── */
-  let lang = localStorage.getItem('traci-lang') || 'ko';
+  let lang = localStorage.getItem('traci-lang') || 'en';
 
   function applyLang() {
     document.querySelectorAll('[data-ko]').forEach(el => {

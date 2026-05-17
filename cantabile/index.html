@@ -6,7 +6,7 @@
   Sources: cantabile-vocal-setup.md + asio-audio-interface.md + mic-vst-plugin.md
   Features: 5-tab layout, sticky glossary, hover cards, plugin modal, light/dark, ko/en
 -->
-<html lang="ko" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1345,7 +1345,7 @@
 <script>
   /* ── THEME ── */
   (function() {
-    const saved = localStorage.getItem('traci-theme') || 'dark';
+    const saved = localStorage.getItem('traci-theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
     document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
   })();
@@ -1359,7 +1359,7 @@
   }
 
   /* ── LANGUAGE ── */
-  let lang = localStorage.getItem('traci-lang') || 'ko';
+  let lang = localStorage.getItem('traci-lang') || 'en';
   function applyLang() {
     document.querySelectorAll('[data-ko]').forEach(el => {
       el.innerHTML = el.getAttribute('data-' + lang);
