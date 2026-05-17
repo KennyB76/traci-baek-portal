@@ -492,111 +492,6 @@
   #btt.show { display: flex; }
   #btt:hover { opacity: 0.85; }
 
-  /* ── LAYOUT CONTAINER (sidebar + wrap) ── */
-  .page-container {
-    display: flex;
-    align-items: flex-start;
-    gap: 0;
-    max-width: 1060px;
-    margin: 0 auto;
-  }
-
-  /* ── SIDEBAR ── */
-  .sidebar {
-    width: 260px;
-    min-width: 260px;
-    position: sticky;
-    top: 52px;
-    height: calc(100vh - 52px);
-    overflow-y: auto;
-    padding: 1.25rem 1rem;
-    background: var(--paper);
-    border-right: 1px solid var(--line);
-    flex-shrink: 0;
-  }
-  .sidebar::-webkit-scrollbar { width: 4px; }
-  .sidebar::-webkit-scrollbar-thumb { background: var(--student); border-radius: 2px; }
-  .sidebar-label {
-    font-size: 9px;
-    letter-spacing: 0.38em;
-    text-transform: uppercase;
-    color: var(--student);
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-  }
-  .sidebar-search {
-    width: 100%;
-    background: var(--card-bg);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 0.4rem 0.7rem;
-    font-size: 0.78rem;
-    color: var(--ink);
-    margin-bottom: 0.85rem;
-    outline: none;
-    font-family: var(--sans);
-    transition: border-color 0.15s;
-  }
-  .sidebar-search::placeholder { color: var(--ink-soft); }
-  .sidebar-search:focus { border-color: var(--student); }
-  .glossary-list { list-style: none; }
-  .glossary-list li {
-    padding: 0.55rem 0.5rem;
-    border-bottom: 1px solid var(--line);
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.12s;
-  }
-  .glossary-list li:last-child { border-bottom: none; }
-  .glossary-list li:hover { background: var(--student-glow); }
-  .gl-term {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--student-deep);
-    margin-bottom: 2px;
-  }
-  [data-theme="dark"] .gl-term { color: var(--student); }
-  .gl-def {
-    font-size: 0.72rem;
-    color: var(--ink-soft);
-    line-height: 1.5;
-  }
-  .gl-hidden { display: none !important; }
-
-  /* sidebar toggle button (mobile) */
-  .sidebar-toggle {
-    display: none;
-    background: var(--student-soft);
-    border: 1px solid var(--line);
-    color: var(--student);
-    border-radius: 6px;
-    padding: 0.28rem 0.65rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-right: 0.4rem;
-  }
-
-  @media (max-width: 860px) {
-    .page-container { flex-direction: column; }
-    .sidebar {
-      position: static;
-      width: 100%;
-      height: auto;
-      max-height: 0;
-      overflow: hidden;
-      border-right: none;
-      border-bottom: 1px solid var(--line);
-      padding: 0 1rem;
-      transition: max-height 0.3s ease, padding 0.2s;
-    }
-    .sidebar.open {
-      max-height: 400px;
-      padding: 1rem;
-      overflow-y: auto;
-    }
-    .sidebar-toggle { display: inline-block; }
-  }
 </style>
 </head>
 <body>
@@ -605,41 +500,10 @@
 <nav>
   <div class="nav-brand">Newton School <span>/ Student Portal</span></div>
   <div class="nav-actions">
-    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">Glossary</button>
     <button class="btn-sm" id="lang-toggle" onclick="toggleLang()">EN</button>
     <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Light</button>
   </div>
 </nav>
-
-<div class="page-container">
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-label">Glossary</div>
-  <input class="sidebar-search" id="glossary-search" type="text" placeholder="Search..." oninput="filterGlossary()" />
-  <ul class="glossary-list" id="glossary-list">
-    <li>
-      <div class="gl-term">Newton School</div>
-      <div class="gl-def">Kenny 의 개인 학습 스튜디오. 소연과 함께하는 공부 공간.</div>
-    </li>
-    <li>
-      <div class="gl-term">Valorant</div>
-      <div class="gl-def">Riot Games FPS. 소연이 즐기는 전략 슈팅 게임. 장비 연구 포함.</div>
-    </li>
-    <li>
-      <div class="gl-term">Cantabile / streaming</div>
-      <div class="gl-def">VST Host 소프트웨어. 마이크 + 플러그인 체인으로 보컬 스트리밍 셋업.</div>
-    </li>
-    <li>
-      <div class="gl-term">마우스 / 패드 / 키보드</div>
-      <div class="gl-def">게이밍 장비 3종. DPI · polling rate · 패드 텍스처 기준으로 선택.</div>
-    </li>
-    <li>
-      <div class="gl-term">Soyeon / 소연</div>
-      <div class="gl-def">Traci Baek 의 한국 이름. Kenny 의 둘째 딸. KO + EN 병행 학습.</div>
-    </li>
-  </ul>
-</aside>
 
 <div class="wrap">
 
@@ -818,8 +682,6 @@
 
 </div><!-- /.wrap -->
 
-</div><!-- /.page-container -->
-
 <!-- BACK TO TOP -->
 <button id="btt" onclick="scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">&#8593;</button>
 
@@ -895,21 +757,6 @@
   window.addEventListener('scroll', () => {
     btt.classList.toggle('show', window.scrollY > 300);
   });
-
-  /* ── SIDEBAR TOGGLE (mobile) ── */
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-  }
-
-  /* ── GLOSSARY FILTER ── */
-  function filterGlossary() {
-    const q = document.getElementById('glossary-search').value.toLowerCase().trim();
-    document.querySelectorAll('#glossary-list li').forEach(li => {
-      if (!q) { li.classList.remove('gl-hidden'); return; }
-      const text = li.textContent.toLowerCase();
-      li.classList.toggle('gl-hidden', !text.includes(q));
-    });
-  }
 
   /* ── MODAL ── */
   const overlay = document.getElementById('modalOverlay');
